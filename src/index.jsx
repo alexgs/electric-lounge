@@ -1,5 +1,5 @@
 import React from 'react';
 import { render } from 'react-dom';
-import AwesomeApp from './AwesomeApp';
+import ElectricLounge from './ElectricLounge';
 
-render( <AwesomeApp />, document.getElementById( 'awesome-app-root' ) );
+render( <ElectricLounge />, document.getElementById( 'electric-lounge-root' ) );

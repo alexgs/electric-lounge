@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 
-class AwesomeApp extends Component {
+class ElectricLounge extends Component {
     render() {
         return (
             <div>
-                <h1>Hello Awesome World!</h1>
+                <h1>Hello Electric Lounge!</h1>
             </div>
         );
     }
 }
 
-export default AwesomeApp;
+export default ElectricLounge;
