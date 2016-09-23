@@ -1,4 +1,4 @@
-import Immutable from 'Immutable';
+import Immutable from 'immutable';
 
 const initialState = Immutable.fromJS( {
     access: 'BQDIOikk9ZdeR0kkDBZKl9H_w4byhhEYBv3npKESuOo5i5D0xFvxSpyfqJd85f3-jG'

@@ -12,8 +12,8 @@
   "devDependencies": {
     "babel-core": "^6.5.2",
     "babel-loader": "^6.2.3",
-    "babel-plugin-react-transform": "^2.0.0",
     "babel-plugin-check-es2015-constants": "^6.3.13",
+    "babel-plugin-react-transform": "^2.0.0",
     "babel-plugin-transform-es2015-arrow-functions": "^6.3.13",
     "babel-plugin-transform-es2015-block-scoped-functions": "^6.3.13",
     "babel-plugin-transform-es2015-block-scoping": "^6.14.0",
@@ -48,8 +48,11 @@
     "load-grunt-tasks": "^3.5.0",
     "react": "^15.0.2",
     "react-dom": "^15.0.2",
+    "react-redux": "^4.4.5",
     "react-transform-hmr": "^1.0.2",
     "redux": "^3.6.0",
+    "redux-logger": "^2.6.1",
+    "redux-thunk": "^2.1.0",
     "webpack": "^1.12.13",
     "webpack-dev-server": "^1.14.1",
     "webpack-merge": "^0.14.1"
