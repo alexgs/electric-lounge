@@ -6,7 +6,10 @@ import store from './store';
 import ElectricLounge from './ElectricLounge';
 
 const mapStateToProps = function( state ) {
-    return { };
+    return {
+        accessToken: state.tokens.get( 'access' ),
+        refreshToken: state.tokens.get( 'refresh' )
+    };
 };
 
 const mapDispatchToProps = function( dispatch ) {
