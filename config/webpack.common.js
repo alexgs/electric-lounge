@@ -46,6 +46,11 @@ module.exports = {
                     ],
                     presets: [ 'react' ]
                 }
+            },
+            {
+                test: /\.json$/,
+                include: /src/,
+                loader: 'json'
             }
         ]
     },
