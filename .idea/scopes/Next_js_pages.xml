@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Next.js pages" pattern="file[electric-lounge]:pages//*" />
+</component>

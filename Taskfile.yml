@@ -1,0 +1,15 @@
+version: '3'
+
+vars:
+  COMPOSE: docker-compose -f builder.yml
+
+tasks:
+  hello:
+    cmds:
+      - echo "Hello Task"
+    silent: true
+
+  node:
+    cmds:
+      - "{{.COMPOSE}} run --service-ports --rm base zsh"
+    desc: Open a shell for running node & npm commands in a container

@@ -1,0 +1,9 @@
+services:
+  base:
+    image: alexgs99/node:latest
+    user: node
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/electric-lounge
+    working_dir: /electric-lounge
