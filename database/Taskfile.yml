@@ -1,0 +1,65 @@
+version: '3'
+
+vars:
+  ENV_FILE: ../.env
+  COMPOSE: docker-compose --env-file {{.ENV_FILE}} -f builder.yml -f ../docker-compose.yml
+  INIT_NAME: postgres-init-container
+
+dotenv: ['../.env']
+
+tasks:
+  dump:
+    cmds:
+      - echo "Not yet implemented"
+    desc: Create a dump of the database suitable for backup purposes
+
+  initialize:
+    cmds:
+      - task: initialize-0-make-directory
+      - task: initialize-1-start-container
+      - task: initialize-2-sleep
+      - task: initialize-3-stop-container
+      - echo "Initialize complete."
+    desc: Initialize the __host__ Postgres data directory
+
+  node:
+    cmds:
+      - "{{.COMPOSE}} run --rm base zsh"
+    desc: Open a shell in a scripting container
+
+  psql:
+    cmds:
+      - "psql -h localhost -p $DATABASE_PORT -U API_DATABASE_USER -d $API_DATABASE_NAME"
+    desc: Connect to the Postgres cluster with the `psql` tool
+
+  psql-admin:
+    cmds:
+      - "psql -h localhost -p $DATABASE_PORT -U $DATABASE_ADMIN_USER -d $API_DATABASE_NAME"
+    # desc: Connect to the Postgres cluster **AS THE ADMIN USER** with the `psql` tool
+
+  restore:
+    cmds:
+      - echo "Not yet implemented"
+    desc: Restore the database from a dump file
+
+  shell:
+    cmds:
+      - docker exec -it database /bin/sh
+    desc: Open a shell in the database container
+
+  wipe-host-data:
+    cmds:
+      - sudo rm -rf $DATABASE_HOST_DIRECTORY
+    desc: Erase the __host__ Postgres data directory with extreme prejudice
+
+  initialize-0-make-directory: mkdir -p $DATABASE_HOST_DIRECTORY
+  initialize-1-start-container: docker run --rm --name {{.INIT_NAME}} -d -p 5432:5432
+    -e POSTGRES_DB=$API_DATABASE_NAME
+    -e POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+    -e POSTGRES_INITDB_ARGS="--auth=scram-sha-256"
+    -e POSTGRES_PASSWORD=$DATABASE_ADMIN_PASSWORD
+    -e POSTGRES_USER=$DATABASE_ADMIN_USER
+    -v $DATABASE_HOST_DIRECTORY:/var/lib/postgresql/data
+    postgres:13-alpine
+  initialize-2-sleep: sleep 15s
+  initialize-3-stop-container: docker stop {{.INIT_NAME}}

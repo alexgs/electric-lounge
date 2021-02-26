@@ -5,5 +5,5 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - .:/electric-lounge
-    working_dir: /electric-lounge
+      - .:/webapp
+    working_dir: /webapp

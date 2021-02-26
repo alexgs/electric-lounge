@@ -1,0 +1,31 @@
+services:
+  database:
+    image: postgres:13-alpine
+    container_name: database
+    restart: unless-stopped
+    ports:
+      - "${DATABASE_PORT}:5432"
+    volumes:
+      - "${DATABASE_HOST_DIRECTORY}:/var/lib/postgresql/data"
+      - ./database:/host
+    working_dir: /host
+    networks:
+      - app-network
+
+  webapp:
+    image: node:12
+    container_name: webapp
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./webapp:/webapp
+    working_dir: /webapp
+    networks:
+      - app-network
+    command: npm run dev
+
+networks:
+  app-network:
+    driver: bridge
+    name: electric-net
