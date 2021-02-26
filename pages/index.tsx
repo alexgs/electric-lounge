@@ -1,5 +1,13 @@
+import styled from '@emotion/styled';
 import Head from 'next/head';
 import * as React from 'react';
+
+import { BasicLayout } from 'components/layouts';
+import { color } from 'components/tokens';
+
+const Hello = styled.h1({
+  borderBottom: `1px solid ${color.accent}`,
+});
 
 const Home: React.FC = () => {
   return (
@@ -8,7 +16,9 @@ const Home: React.FC = () => {
         <title>Electric Lounge</title>
       </Head>
 
-      <h1>Hello Electric Lounge</h1>
+      <BasicLayout>
+        <Hello>Hello Electric Lounge</Hello>
+      </BasicLayout>
     </div>
   );
 };

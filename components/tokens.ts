@@ -12,22 +12,34 @@ export const breakpoint = {
 };
 
 export const color = {
-  text: '#424242',
-  background: '#fff6de', // "cream"
+  accent: '#FF7601',
+  background: 'rgb(32, 32, 32)',
+  primaryLight: '#DCDCDC', // Gainsboro
+  primaryMedium: '#D3D3D3', // Light grey
+  primaryDark: '#C0C0C0', // Silver
   browserBlue: 'rgb(0, 0, 238)',
 
   // Set aliases below
   bg: '',
+  primary: '',
+  primary0: '',
+  primary1: '',
+  primary2: '',
 };
 color.bg = color.background;
+color.primary = color.primaryMedium;
+color.primary0 = color.primaryLight;
+color.primary1 = color.primaryMedium;
+color.primary2 = color.primaryDark;
 
 export const font = {
-  body: '"EB Garamond 500", serif',
-  head: '"EB Garamond", serif',
+  body: 'Roboto, \'Segoe UI\', Tahoma, sans-serif;',
+  head: 'Ubuntu, Roboto, \'Segoe UI\', Tahoma, sans-serif;',
   size: {
-    xtraSmall: '0.75rem', // 12px
-    small: '1rem', // 16px
-    regular: '1.25rem', // 20px
+    small: '0.75rem', // 12px
+    kindaSmall: '0.875rem', // 14px
+    regular: '1rem', // 16px
+    heading4: '1.25rem', // 20px
     heading3: '1.5rem', // 24px
     heading2: '1.75rem', // 28px
     heading1: '2rem', // 32px
