@@ -4,6 +4,7 @@ module.exports = {
   root: true,
   parserOptions: {
     ecmaVersion: 6,
+    sourceType: 'module',
   },
   plugins: [],
   extends: ['eslint:recommended', 'prettier'],

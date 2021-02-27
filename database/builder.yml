@@ -1,0 +1,9 @@
+services:
+  base:
+    image: alexgs99/node:latest
+    user: node
+    volumes:
+      - .:/database
+    working_dir: /database
+    networks:
+      - app-network

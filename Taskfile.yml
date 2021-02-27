@@ -1,15 +1,20 @@
 version: '3'
 
 vars:
-  COMPOSE: docker-compose -f builder.yml
+  COMPOSE: docker-compose
 
 tasks:
-  hello:
+  config:
     cmds:
-      - echo "Hello Task"
-    silent: true
+      - "{{.COMPOSE}} config"
+    desc: Print the compose file with variables expanded
 
-  node:
+  down:
     cmds:
-      - "{{.COMPOSE}} run --service-ports --rm base zsh"
-    desc: Open a shell for running node & npm commands in a container
+      - "{{.COMPOSE}} down --remove-orphans"
+    desc: Tear down the application
+
+  up:
+    cmds:
+      - "{{.COMPOSE}} up -d"
+    desc: Spin-up the application

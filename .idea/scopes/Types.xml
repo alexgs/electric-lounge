@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Types" pattern="file[electric-lounge]:webapp/types//*" />
+</component>

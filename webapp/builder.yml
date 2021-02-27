@@ -1,0 +1,29 @@
+services:
+  base:
+    image: alexgs99/node:latest
+    user: node
+    ports:
+      - 3128:3000
+      - "5555:5555"
+    volumes:
+      - .:/webapp
+    working_dir: /webapp
+    networks:
+      - app-network
+    environment:
+      - API_DATABASE_URL
+
+  gen:
+    extends:
+      service: base
+    command: npm run gen
+
+  install:
+    extends:
+      service: base
+    command: npm install
+
+  studio:
+    extends:
+      service: base
+    command: npx prisma studio

@@ -4,6 +4,7 @@
     <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="JSUnresolvedLibraryURL" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="JSUnusedGlobalSymbols" enabled="true" level="WARNING" enabled_by_default="true">
+      <scope name="Types" level="WARNING" enabled="false" />
       <scope name="Next.js pages" level="WARNING" enabled="false" />
     </inspection_tool>
   </profile>
