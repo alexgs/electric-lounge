@@ -9,7 +9,7 @@
   "engines": {
     "node": "^12.20.0"
   },
-  "license": "UNLICENSED",
+  "license": "SEE COPYRIGHT STATEMENT IN ../README.md",
   "private": true,
   "scripts": {
     "build": "next build",
