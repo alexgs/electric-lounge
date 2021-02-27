@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021 Phillip Gates-Shannon. All rights reserved. Licensed under
+ * the Open Software License version 3.0.
+ */
+
 // These breakpoints are based on [Tailwind's defaults][1]
 // [1]: https://tailwindcss.com/docs/breakpoints
 

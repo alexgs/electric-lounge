@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021 Phillip Gates-Shannon. All rights reserved. Licensed under
+ * the Open Software License version 3.0.
+ */
+
 import { Global } from '@emotion/react';
 import Head from 'next/head';
 import * as React from 'react';

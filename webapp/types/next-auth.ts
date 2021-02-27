@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021 Phillip Gates-Shannon. All rights reserved. Licensed under
+ * the Open Software License version 3.0.
+ */
+
 /* eslint-disable import/order */
 
 // NB: (2021-02-27) TypeScript support for NextAuth is apparently shit, so I'm

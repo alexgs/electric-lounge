@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021 Phillip Gates-Shannon. All rights reserved. Licensed under
+ * the Open Software License version 3.0.
+ */
+
 import { PrismaClient } from '@prisma/client'
 import * as env from 'env-var';
 import NextAuth from 'next-auth';

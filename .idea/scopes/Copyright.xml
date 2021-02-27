@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Copyright" pattern="(file[electric-lounge]:*.ts||file[electric-lounge]:*.tsx)&amp;&amp;!file:webapp/next-env.d.ts||file[electric-lounge]:webapp/prisma//*" />
+</component>
