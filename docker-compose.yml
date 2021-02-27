@@ -23,6 +23,10 @@ services:
     working_dir: /webapp
     networks:
       - app-network
+    environment:
+      - API_DATABASE_URL
+      - SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET
     command: npm run dev
 
 networks:
