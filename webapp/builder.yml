@@ -4,6 +4,7 @@ services:
     user: node
     ports:
       - 3128:3000
+      - "5555:5555"
     volumes:
       - .:/webapp
     working_dir: /webapp
@@ -25,6 +26,4 @@ services:
   studio:
     extends:
       service: base
-    ports:
-      - "5555:5555"
     command: npx prisma studio

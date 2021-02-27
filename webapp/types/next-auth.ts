@@ -1,26 +1,36 @@
+/* eslint-disable import/order */
+
 // NB: (2021-02-27) TypeScript support for NextAuth is apparently shit, so I'm
 // writing my own declaration in this file. Check the [TypeScript Support][1]
 // page for future developments.
 // [1]: https://next-auth.js.org/getting-started/typescript
 
 declare module 'next-auth' {
+  import { AdapterObject } from 'next-auth/adapters';
   import { ProviderObject } from 'next-auth/providers';
 
-  function NextAuth(options: { providers: ProviderObject[] }): unknown
+  interface ConfigOptions {
+    adapter?: AdapterObject;
+    debug?: boolean;
+    providers: ProviderObject[];
+  }
+
+  function NextAuth(options: ConfigOptions): unknown
 
   export default NextAuth;
 }
 
-declare module 'next-auth/providers' {
-  export type ProviderObject = unknown;
+declare module 'next-auth/adapters' {
+  import { PrismaClient } from '@prisma/client';
+  const Adapter: AdapterObject;
 
-  interface ProvidersList {
-    Spotify: (options: { clientId: string, clientSecret: string }) => ProviderObject;
+  export interface AdapterObject {
+    Prisma: {
+      Adapter: (options: { prisma: PrismaClient }) => AdapterObject;
+    };
   }
 
-  const Providers: ProvidersList;
-
-  export default Providers;
+  export default Adapter;
 }
 
 declare module 'next-auth/client' {
@@ -47,4 +57,16 @@ declare module 'next-auth/client' {
   function signOut(): Promise<void>
 
   function useSession(): [Session | null, false | undefined, true]
+}
+
+declare module 'next-auth/providers' {
+  export type ProviderObject = unknown;
+
+  interface ProvidersList {
+    Spotify: (options: { clientId: string, clientSecret: string }) => ProviderObject;
+  }
+
+  const Providers: ProvidersList;
+
+  export default Providers;
 }

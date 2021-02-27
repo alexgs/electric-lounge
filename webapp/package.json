@@ -14,7 +14,11 @@
   "scripts": {
     "build": "next build",
     "check": "tsc --noEmit",
+    "clean": "rm -rf dist && rm -rf generated",
     "dev": "next dev",
+    "gen": "npm run gen:prisma && npm run gen:nexus",
+    "gen:nexus": "ts-node --transpile-only src/schema/index.ts",
+    "gen:prisma": "prisma generate",
     "lint": "eslint .",
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
