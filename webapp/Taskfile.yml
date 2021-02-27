@@ -1,15 +1,38 @@
 version: '3'
 
 vars:
-  COMPOSE: docker-compose -f builder.yml
+  ENV_FILE: ../.env
+  COMPOSE: docker-compose --env-file {{.ENV_FILE}} -f builder.yml -f ../docker-compose.yml
 
 tasks:
-  hello:
+  fix-owner:
     cmds:
-      - echo "Hello Task"
-    silent: true
+      - sudo chown -R alexgs:alexgs ./node_modules/@types
+    desc: Fix file owners for `node_modules/@types`
+
+  gen:
+    cmds:
+      - task: fix-owner
+      - task: just-gen
+    desc: Generate the Nexus and Prisma things
+
+  install:
+    cmds:
+      - "{{.COMPOSE}} run --rm install"
+    desc: Install dependencies
+
+  # Just run the generators without fixing file permissions; intended for use
+  #   by file watcher and other scripts.
+  just-gen:
+    cmds:
+      - "{{.COMPOSE}} run --rm gen"
 
   node:
     cmds:
       - "{{.COMPOSE}} run --service-ports --rm base zsh"
     desc: Open a shell for running node & npm commands in a container
+
+  studio:
+    cmds:
+      - "{{.COMPOSE}} run --rm --service-ports studio"
+    desc: Launch Prisma Studio

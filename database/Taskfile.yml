@@ -29,7 +29,7 @@ tasks:
 
   psql:
     cmds:
-      - "psql -h localhost -p $DATABASE_PORT -U API_DATABASE_USER -d $API_DATABASE_NAME"
+      - "psql -h localhost -p $DATABASE_PORT -U $API_DATABASE_USER -d $API_DATABASE_NAME"
     desc: Connect to the Postgres cluster with the `psql` tool
 
   psql-admin:

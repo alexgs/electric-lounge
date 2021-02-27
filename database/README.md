@@ -2,6 +2,8 @@
 
 Database settings and configuration.
 
+:boom: **WARNING** :boom: PostreSQL is weird about case sensitivity. The best solution is to use lower case for all database and role names. If you insist on using upper case, you _must_ wrap database and role names in double quotes.
+
 ## Common Commands
 
 You'll need [Task][1] to do anything. You can run `task --list` to see other commands, or just peek at `Tasklist.yml`.
@@ -12,6 +14,8 @@ You'll need [Task][1] to do anything. You can run `task --list` to see other com
 1. From the container, you can do `psql -h database -U $API_DATABASE_USER -d $API_DATABASE_NAME`. You will be prompted for the `$API_DATABASE_PASSWORD`.
 
 ## Getting Started
+
+:boom: **WARNING** :boom: PostreSQL is weird about case sensitivity. The best solution is to use lower case for all database and role names. If you insist on using upper case, you _must_ wrap database and role names in double quotes.
 
 1. Make sure the following keys are set in `../.env`. Values for `API_DATABASE_PASSWORD` and `API_DATABASE_USER` are not strictly necessary, but they are referenced in the instructions below. They are also used by the `../api` package.
 ```
@@ -29,7 +33,7 @@ DATABASE_HOST_DIRECTORY
 1. Execute the following queries
 ```sql
 CREATE ROLE $API_DATABASE_USER
-  WITH LOGIN PASSWORD $API_DATABASE_PASSWORD;
+  WITH LOGIN PASSWORD '$API_DATABASE_PASSWORD';
 
 REVOKE ALL ON DATABASE $API_DATABASE_NAME
   FROM $API_DATABASE_USER;
