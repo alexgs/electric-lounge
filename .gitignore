@@ -32,7 +32,10 @@
 **/build
 
 
-# --- Project ---
+# --- PROJECT ---
+
+# This file contains secrets, so keep it out of the repo
+**/.npmrc
 
 # artifacts and dependencies
 **/dist

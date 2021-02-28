@@ -3,5 +3,7 @@
  * the Open Software License version 3.0.
  */
 
+export { Accordion } from './Accordion';
 export { GlobalStyles } from './GlobalStyles';
 export { LoginWidget } from './LoginWidget';
+export { Logo } from './Logo';

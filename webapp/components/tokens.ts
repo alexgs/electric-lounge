@@ -22,7 +22,9 @@ export const color = {
   primaryLight: '#DCDCDC', // Gainsboro
   primaryMedium: '#D3D3D3', // Light grey
   primaryDark: '#C0C0C0', // Silver
+
   browserBlue: 'rgb(0, 0, 238)',
+  royalBlue: 'rgb(138 180 248)',
 
   // Set aliases below
   bg: '',

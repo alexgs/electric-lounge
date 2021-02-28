@@ -4,10 +4,16 @@
  */
 
 import { Global } from '@emotion/react';
+import { config } from '@fortawesome/fontawesome-svg-core';
 import Head from 'next/head';
 import * as React from 'react';
 
 import { color, font } from './tokens';
+
+// Manually import FontAwesome CSS and tell FA to not auto-add it [ref][1]
+// [1]: https://stackoverflow.com/a/60512800
+import '@fortawesome/fontawesome-svg-core/styles.css';
+config.autoAddCss = false;
 
 const globalStyles = {
   'html,body': {
@@ -22,7 +28,7 @@ const globalStyles = {
 
   a: {
     borderBottom: '1px dotted',
-    color: color.browserBlue,
+    color: color.royalBlue,
     textDecoration: 'none',
 
     ':active': {
