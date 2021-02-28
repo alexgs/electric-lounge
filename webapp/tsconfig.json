@@ -6,6 +6,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true, // I think Next keeps adding this, even though it causes an error when running `npm run check`.
     "jsx": "preserve",
+    "jsxImportSource": "@emotion/react",
     "lib": [
       "dom",
       "dom.iterable",

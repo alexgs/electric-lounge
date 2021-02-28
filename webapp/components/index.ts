@@ -5,3 +5,4 @@
 
 export { GlobalStyles } from './GlobalStyles';
 export { LoginWidget } from './LoginWidget';
+export { Logo } from './Logo';

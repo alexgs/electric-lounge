@@ -3,10 +3,24 @@
  * the Open Software License version 3.0.
  */
 
+import styled from '@emotion/styled';
 import { signIn, useSession } from 'next-auth/client';
+import Head from 'next/head';
+import Image from 'next/image'
 import * as React from 'react';
 
+import { Logo } from 'components';
 import { BasicLayout } from 'components/layouts';
+import { space } from 'components/tokens';
+
+const Welcome = styled.div({
+  alignItems: 'center',
+  display: 'flex',
+
+  '& span': {
+    marginLeft: space.small,
+  },
+});
 
 const PartyWizard: React.FC = () => {
   const [ session, loading ] = useSession();
@@ -19,14 +33,27 @@ const PartyWizard: React.FC = () => {
     const firstName = session.user.name.split(' ')[0];
     return (
       <BasicLayout>
-        <div>Hello, {firstName}. You&apos;re ready to rock! 🤘</div>
+        <Head><title>Party Wizard | The Electric Lounge</title></Head>
+        <Logo />
+        <Welcome>
+          <Image width="40" height="40" src="/party-wizard.gif" />
+          <span>Hello, {firstName}. You&apos;re ready to rock! 🤘</span>
+        </Welcome>
       </BasicLayout>
     )
   }
 
   return (
     <BasicLayout>
-      <div>You need to <a role="button" onClick={() => signIn()}>sign in</a> before you can rock out.</div>
+      <Head>
+        <title>Party Wizard | The Electric Lounge</title>
+      </Head>
+      <Logo />
+      <div>
+        {'The Party Wizard awaits, but you need to '}
+        <a role="button" onClick={() => signIn()}>sign in</a>
+        {' before you can rock out.'}
+      </div>
     </BasicLayout>
   )
 }
