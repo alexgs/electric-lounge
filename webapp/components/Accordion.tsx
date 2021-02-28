@@ -4,7 +4,7 @@
  */
 
 import styled from '@emotion/styled';
-import { faChevronDown, faChevronLeft } from '@fortawesome/pro-light-svg-icons';
+import { faChevronDown } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
@@ -55,13 +55,21 @@ export const Accordion: React.FC<Props> = (props: Props) => {
     setIsOpen((prevState) => !prevState);
   }
 
-  const chevron = isOpen ? faChevronDown : faChevronLeft;
+  const rotation = isOpen ? 0 : 90;
+  const chevronCss = {
+    transform: `rotate(${rotation}deg)`,
+    transition: 'all 200ms ease',
+  };
   return (
     <Container>
       <Heading onClick={handleHeadingClick}>
         <HeadingContent>{props.heading}</HeadingContent>
-        <HeadingContent css={{marginLeft: 'auto'}}>
-          <FontAwesomeIcon icon={chevron} fixedWidth={true} />
+        <HeadingContent css={{ marginLeft: 'auto' }}>
+          <FontAwesomeIcon
+            css={chevronCss}
+            icon={faChevronDown}
+            fixedWidth={true}
+          />
         </HeadingContent>
       </Heading>
       <Body isOpen={isOpen}>{props.children}</Body>
