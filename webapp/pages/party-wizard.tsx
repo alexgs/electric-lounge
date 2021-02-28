@@ -43,6 +43,9 @@ const PartyWizard: React.FC = () => {
         <Accordion heading={'For those about to rock...'}>
           We salute you!
         </Accordion>
+        <Accordion heading={'Here at the Electric Lounge...'}>
+          No one&apos;s afraid to laugh.
+        </Accordion>
       </BasicLayout>
     )
   }
