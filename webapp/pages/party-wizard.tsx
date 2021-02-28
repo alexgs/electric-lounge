@@ -16,6 +16,7 @@ import { space } from 'components/tokens';
 const Welcome = styled.div({
   alignItems: 'center',
   display: 'flex',
+  marginBottom: space.medium,
 
   '& span': {
     marginLeft: space.small,
@@ -39,7 +40,7 @@ const PartyWizard: React.FC = () => {
           <Image width="40" height="40" src="/party-wizard.gif" />
           <span>Hello, {firstName}. You&apos;re ready to rock! 🤘</span>
         </Welcome>
-        <Accordion>
+        <Accordion heading={'For those about to rock...'}>
           We salute you!
         </Accordion>
       </BasicLayout>
