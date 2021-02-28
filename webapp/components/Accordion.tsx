@@ -3,23 +3,18 @@
  * the Open Software License version 3.0.
  */
 
+// References: [blog post][1] and [sandbox][2]
+// [1]: https://www.chrisberry.io/Animate-Auto-With-React-Spring/
+// [2]: https://codesandbox.io/s/animate-auto-height-6trvh
+
 import styled from '@emotion/styled';
 import { faChevronDown } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
+import { useSpring, animated } from 'react-spring';
+import { useMeasure } from 'react-use';
 
 import { color, font, space } from 'components/tokens';
-
-interface BodyProps {
-  isOpen: boolean;
-}
-
-const Body = styled.div((props: BodyProps) => ({
-  display: props.isOpen ? 'block' : 'none',
-  marginTop: space.medium,
-  marginBottom: space.medium,
-}));
-Body.displayName = 'Accordion.Body';
 
 const Container = styled.div({
   borderBottom: `1px solid ${color.primaryDark}`,
@@ -43,18 +38,47 @@ const HeadingContent = styled.div({
 });
 HeadingContent.displayName = 'Accordion.HeadingContent';
 
+const bodyCss = {
+  overflow: 'hidden',
+};
+
+const contentCss = {
+  paddingTop: space.medium,
+  paddingBottom: space.medium,
+};
+
 interface Props {
   children: React.ReactNode;
   heading: string;
 }
 
 export const Accordion: React.FC<Props> = (props: Props) => {
+  const defaultHeight = 0;
   const [isOpen, setIsOpen] = React.useState(false);
+  const [contentHeight, setContentHeight] = React.useState(defaultHeight);
+  const [ref, { height }] = useMeasure();
+
+  const expand = useSpring({
+    // config: { friction: 10 },
+    height: isOpen ? `${contentHeight}px` : `${defaultHeight}px`,
+  });
+
+  React.useEffect(() => {
+    //Sets initial height
+    setContentHeight(height);
+
+    // Adds resize event listener // TODO This can be done in the future
+    // window.addEventListener("resize", setContentHeight(height));
+
+    // Clean-up
+    // return window.removeEventListener("resize", setContentHeight(height));
+  }, [height]);
 
   function handleHeadingClick() {
     setIsOpen((prevState) => !prevState);
   }
 
+  // TODO Change the chevron animation to also use react-spring?
   const rotation = isOpen ? 0 : 90;
   const chevronCss = {
     transform: `rotate(${rotation}deg)`,
@@ -72,7 +96,11 @@ export const Accordion: React.FC<Props> = (props: Props) => {
           />
         </HeadingContent>
       </Heading>
-      <Body isOpen={isOpen}>{props.children}</Body>
+      <animated.div css={bodyCss} style={expand}>
+        <div ref={ref as React.LegacyRef<HTMLDivElement>}>
+          <div css={contentCss}>{props.children}</div>
+        </div>
+      </animated.div>
     </Container>
   );
 };

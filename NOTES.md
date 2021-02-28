@@ -16,6 +16,16 @@
 [6]: https://github.com/danhaggard/react-scroll-collapse
 [7]: https://codingfromscratch.dev/reactjs-accordion-component-with-smooth-animation/
 
+## Animations (esp. `height`)
+
+- ["Animate Auto with React Spring," Chris Berry][8]
+- ["How I solved Auto Height CSS Animation Once and For All," Eric Whitefield][10]
+- [React Animate Height][9]
+
+[8]: https://www.chrisberry.io/Animate-Auto-With-React-Spring/
+[9]: https://www.npmjs.com/package/react-animate-height
+[10]: https://whitefield.dev/blog/auto-height-css-animation
+
 ## Colors
 
 ### Electric orange
