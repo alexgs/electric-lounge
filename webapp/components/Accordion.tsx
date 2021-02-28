@@ -8,14 +8,20 @@ import * as React from 'react';
 
 import { color, font, space } from 'components/tokens';
 
-const Body = styled.div({
+interface BodyProps {
+  isOpen: boolean;
+}
+
+const Body = styled.div((props: BodyProps) => ({
+  display: props.isOpen ? 'block' : 'none',
   marginTop: space.medium,
   marginBottom: space.medium,
-});
+}));
 Body.displayName = 'Accordion.Body';
 
 const Container = styled.div({
   borderBottom: `1px solid ${color.primaryDark}`,
+  cursor: 'pointer',
   marginBottom: space.medium,
   paddingTop: space.small,
   paddingBottom: space.small,
@@ -35,10 +41,16 @@ interface Props {
 }
 
 export const Accordion: React.FC<Props> = (props: Props) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  function handleHeadingClick() {
+    setIsOpen((prevState => !prevState));
+  }
+
   return (
     <Container>
-      <Heading>{props.heading}</Heading>
-      <Body>{props.children}</Body>
+      <Heading onClick={handleHeadingClick}>{props.heading}</Heading>
+      <Body isOpen={isOpen}>{props.children}</Body>
     </Container>
   );
 };
