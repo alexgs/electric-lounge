@@ -1,5 +1,21 @@
 # Notes on this project
 
+## Accordions in React
+
+- [Coding from Scratch][7]
+- [github.com/ALapina][3]
+- [github.com/damirpristav][5]
+- [github.com/danhaggard][6]
+- [github.com/peteraiello][2]
+- [Skillthrive][4]
+
+[2]: https://github.com/peteraiello/custom-react-accordion
+[3]: https://github.com/ALapina/FAQ-Accordion-Card-React
+[4]: https://medium.com/skillthrive/build-a-react-accordion-component-from-scratch-using-react-hooks-a71d3d91324b
+[5]: https://github.com/damirpristav/react-accordion-ts
+[6]: https://github.com/danhaggard/react-scroll-collapse
+[7]: https://codingfromscratch.dev/reactjs-accordion-component-with-smooth-animation/
+
 ## Colors
 
 ### Electric orange
@@ -34,3 +50,9 @@ html {
   --google-gray-900: rgb(32, 33, 36);
 }
 ```
+
+## Spotify
+
+  - [How can I get a specific snapshot of a playlist from the Spotify Web API?][1] TLDR: You can't.
+
+[1]: https://stackoverflow.com/questions/33769704/how-can-i-get-a-specific-snapshot-of-a-playlist-from-the-spotify-web-api
