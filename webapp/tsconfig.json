@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "esModuleInterop": true, // Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'.
     "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true, // I think Next keeps adding this, even though it causes an error when running `npm run check`.
     "jsx": "preserve",
     "lib": [
       "dom",

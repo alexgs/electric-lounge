@@ -20,11 +20,11 @@ References
 
 ```css
 html {
-  --google-gray-50:  rgb(248, 249, 250);
   --google-blue-100: rgb(210, 227, 252);
   --google-blue-300: rgb(138, 180, 248);
   --google-blue-600: rgb(26, 115, 232);
   --google-blue-700: rgb(25, 103, 210);
+  --google-gray-50:  rgb(248, 249, 250);
   --google-gray-100: rgb(241, 243, 244);
   --google-gray-300: rgb(218, 220, 224);
   --google-gray-500: rgb(154, 160, 166);

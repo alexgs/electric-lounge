@@ -22,7 +22,7 @@ const globalStyles = {
 
   a: {
     borderBottom: '1px dotted',
-    color: color.browserBlue,
+    color: color.royalBlue,
     textDecoration: 'none',
 
     ':active': {
