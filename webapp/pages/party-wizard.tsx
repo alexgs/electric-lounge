@@ -9,7 +9,7 @@ import Head from 'next/head';
 import Image from 'next/image'
 import * as React from 'react';
 
-import { Accordion, Logo } from 'components';
+import { Accordion, Logo, PartyWizard as Panels } from 'components';
 import { BasicLayout } from 'components/layouts';
 import { space } from 'components/tokens';
 
@@ -40,6 +40,9 @@ const PartyWizard: React.FC = () => {
           <Image width="40" height="40" src="/party-wizard.gif" />
           <span>Hello, {firstName}. You&apos;re ready to rock! 🤘</span>
         </Welcome>
+        <Accordion heading={'Spotify API'}>
+          <Panels.SpotifyApiCheck />
+        </Accordion>
         <Accordion heading={'For those about to rock...'}>
           We salute you!
         </Accordion>
