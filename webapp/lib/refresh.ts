@@ -7,16 +7,36 @@ import { PrismaClient } from '@prisma/client';
 import * as env from 'env-var';
 import formEncoder from 'form-urlencoded';
 import got from 'got';
-import { NextApiResponse, NextApiRequest } from 'next';
 
+const SPOTIFY_PROVIDER_ID = 'spotify';
 const SPOTIFY_REFRESH_URL = 'https://accounts.spotify.com/api/token';
 
 const prisma = new PrismaClient();
 
-async function refreshAccessToken(
-  request: NextApiRequest,
-  response: NextApiResponse,
-): Promise<void> {
+export interface RefreshSuccessfulResult {
+  access_token: string;
+  expires_in: number;
+  scope: string;
+  status: number;
+  token_type: string;
+}
+
+interface SpotifyRefreshResult {
+  access_token: string;
+  expires_in: number;
+  scope: string;
+  token_type: string;
+}
+
+export interface RefreshErrorResult {
+  status: number;
+  statusMessage: string;
+  body?: Record<string, unknown>;
+}
+
+type RefreshResult = RefreshErrorResult | RefreshSuccessfulResult;
+
+export async function refreshAccessToken(userId: number): Promise<RefreshResult> {
   try {
     const clientId = env.get('SPOTIFY_CLIENT_ID').required().asString();
     const clientSecret = env.get('SPOTIFY_CLIENT_SECRET').required().asString();
@@ -26,47 +46,44 @@ async function refreshAccessToken(
       'Content-Type': 'application/x-www-form-urlencoded',
       Authorization: `Basic ${encodedAuth}`,
     };
-    console.log(`  --> Checkpoint 1`);
 
     const result = await prisma.account.findFirst({
       where: {
-        userId: 2,
-        providerId: 'spotify',
+        userId,
+        providerId: SPOTIFY_PROVIDER_ID,
       },
     });
+    if (!result?.refreshToken) {
+      return {
+        status: 500,
+        statusMessage: `Missing refresh token for user ID ${userId}`
+      };
+    }
+
     const payload = {
       grant_type: 'refresh_token',
-      refresh_token: result?.refreshToken ?? 'missing-token',
+      refresh_token: result.refreshToken,
     };
-    console.log(`  --> Checkpoint 2`);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const body = formEncoder(payload) as string;
+    const requestBody = formEncoder(payload);
     const refreshResponse = await got(SPOTIFY_REFRESH_URL, {
-      body,
       headers,
+      body: requestBody,
       method: 'POST',
     });
-    console.log(`  --> Checkpoint 3`);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const refreshedTokens = JSON.parse(refreshResponse.body);
-    console.log(`  --> Checkpoint 4`);
-
-    response
-      .status(200)
-      .json(refreshedTokens);
+    const responseBody = JSON.parse(refreshResponse.body) as SpotifyRefreshResult;
+    return {
+      ...responseBody,
+      status: 200,
+    };
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
-    response.status(500).json({
-      keys: Object.keys(error) ?? 'No response',
-      statusCode: error.response.statusCode,
+    return {
+      status: error.response.statusCode,
       statusMessage: error.response.statusMessage,
       body: JSON.parse(error.response.body),
-    });
+    };
     /* eslint-enable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
   }
 }
-
-export default refreshAccessToken;
