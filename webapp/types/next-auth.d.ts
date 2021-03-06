@@ -16,11 +16,17 @@ declare module 'next-auth' {
 
   interface ConfigOptions {
     adapter?: AdapterObject;
+    callbacks?: {
+      session?: (
+        session: Record<string, unknown>,
+        token: Record<string, unknown>,
+      ) => Promise<Record<string, unknown>>;
+    };
     debug?: boolean;
     providers: ProviderObject[];
   }
 
-  function NextAuth(options: ConfigOptions): unknown
+  function NextAuth(options: ConfigOptions): unknown;
 
   export default NextAuth;
 }
@@ -49,6 +55,7 @@ declare module 'next-auth/client' {
     user: User;
     accessToken?: string;
     expires: string;
+    spotifyToken?: string;
   }
 
   interface User {
@@ -57,18 +64,22 @@ declare module 'next-auth/client' {
     image: string;
   }
 
-  function signIn(): Promise<void>
+  function signIn(): Promise<void>;
 
-  function signOut(): Promise<void>
+  function signOut(): Promise<void>;
 
-  function useSession(): [Session | null, false | undefined, true]
+  function useSession(): [Session | null, false | undefined, true];
 }
 
 declare module 'next-auth/providers' {
   export type ProviderObject = unknown;
 
   interface ProvidersList {
-    Spotify: (options: { clientId: string, clientSecret: string }) => ProviderObject;
+    Spotify: (options: {
+      clientId: string;
+      clientSecret: string;
+      scope?: string | string[];
+    }) => ProviderObject;
   }
 
   const Providers: ProvidersList;

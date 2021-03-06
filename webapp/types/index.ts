@@ -3,3 +3,18 @@
  * the Open Software License version 3.0.
  */
 
+export interface RefreshErrorResult {
+  status: number;
+  statusMessage: string;
+  body?: Record<string, unknown>;
+}
+
+export type RefreshResult = RefreshErrorResult | RefreshSuccessfulResult;
+
+export interface RefreshSuccessfulResult {
+  access_token: string;
+  expires_in: number;
+  scope: string;
+  status: number;
+  token_type: string;
+}
