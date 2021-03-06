@@ -13,6 +13,7 @@ import { color, font } from './tokens';
 // Manually import FontAwesome CSS and tell FA to not auto-add it [ref][1]
 // [1]: https://stackoverflow.com/a/60512800
 import '@fortawesome/fontawesome-svg-core/styles.css';
+
 config.autoAddCss = false;
 
 const globalStyles = {
@@ -78,6 +79,8 @@ const globalStyles = {
   },
 };
 
+// TODO [R4] We could potentially remove "JetBrains Mono" font in production.
+
 // noinspection HtmlRequiredTitleElement
 export const GlobalStyles: React.FC = () => (
   <>
@@ -94,6 +97,10 @@ export const GlobalStyles: React.FC = () => (
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+      />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital@0;1&display=swap"
       />
     </Head>
 

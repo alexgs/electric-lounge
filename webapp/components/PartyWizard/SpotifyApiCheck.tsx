@@ -8,6 +8,8 @@
 import { useSession } from 'next-auth/client';
 import * as React from 'react';
 
+import { JsonDisplay } from './JsonDisplay';
+
 export const SpotifyApiCheck: React.FC = () => {
   const [someState, setSomeState] = React.useState<unknown>(null);
   const [session, loading] = useSession();
@@ -37,9 +39,5 @@ export const SpotifyApiCheck: React.FC = () => {
     return null;
   }
 
-  return (
-    <div>
-      <pre>{JSON.stringify(someState, null, 2)}</pre>
-    </div>
-  );
+  return <JsonDisplay data={someState} />;
 };
