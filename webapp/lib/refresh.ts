@@ -3,23 +3,15 @@
  * the Open Software License version 3.0.
  */
 
-import { PrismaClient } from '@prisma/client';
 import * as env from 'env-var';
 import formEncoder from 'form-urlencoded';
 import got from 'got';
 
+import { prisma } from 'lib';
+import { RefreshResult } from 'types';
+
 const SPOTIFY_PROVIDER_ID = 'spotify';
 const SPOTIFY_REFRESH_URL = 'https://accounts.spotify.com/api/token';
-
-const prisma = new PrismaClient();
-
-export interface RefreshSuccessfulResult {
-  access_token: string;
-  expires_in: number;
-  scope: string;
-  status: number;
-  token_type: string;
-}
 
 interface SpotifyRefreshResult {
   access_token: string;
@@ -27,14 +19,6 @@ interface SpotifyRefreshResult {
   scope: string;
   token_type: string;
 }
-
-export interface RefreshErrorResult {
-  status: number;
-  statusMessage: string;
-  body?: Record<string, unknown>;
-}
-
-type RefreshResult = RefreshErrorResult | RefreshSuccessfulResult;
 
 export async function refreshAccessToken(userId: number): Promise<RefreshResult> {
   try {

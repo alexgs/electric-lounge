@@ -3,20 +3,15 @@
  * the Open Software License version 3.0.
  */
 
-import { PrismaClient, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import * as env from 'env-var';
 import { DateTime } from 'luxon';
 import NextAuth from 'next-auth';
 import Adapters from 'next-auth/adapters';
 import Providers from 'next-auth/providers';
 
-import {
-  RefreshErrorResult,
-  RefreshSuccessfulResult,
-  refreshAccessToken,
-} from '../../../lib/refresh';
-
-const prisma = new PrismaClient();
+import { prisma, refreshAccessToken } from 'lib';
+import { RefreshErrorResult, RefreshSuccessfulResult } from 'types';
 
 // Reference: https://developer.spotify.com/documentation/general/guides/scopes/
 const SPOTIFY_SCOPES: string[] = [
