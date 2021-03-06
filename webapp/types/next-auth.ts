@@ -17,6 +17,12 @@ declare module 'next-auth' {
   interface ConfigOptions {
     adapter?: AdapterObject;
     callbacks?: {
+      jwt?: (
+        token: Record<string, unknown>,
+        user?: Record<string, unknown>,
+        account?: Record<string, unknown>,
+        profile?: Record<string, unknown>,
+      ) => Promise<Record<string, unknown>>;
       session?: (
         session: Record<string, unknown>,
         token: Record<string, unknown>,

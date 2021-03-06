@@ -42,18 +42,20 @@ async function refreshAccessToken(
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const body = formEncoder(payload) as string;
-    console.log(`  --> Checkpoint 3`);
-
     const refreshResponse = await got(SPOTIFY_REFRESH_URL, {
       body,
       headers,
       method: 'POST',
     });
+    console.log(`  --> Checkpoint 3`);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const refreshedTokens = JSON.parse(refreshResponse.body);
     console.log(`  --> Checkpoint 4`);
 
     response
       .status(200)
-      .json({ status: "Everything's fine here. How are you?" });
+      .json(refreshedTokens);
   } catch (error) {
     console.log(error);
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */

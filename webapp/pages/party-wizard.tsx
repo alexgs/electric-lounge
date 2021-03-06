@@ -31,6 +31,7 @@ const PartyWizard: React.FC = () => {
   }
 
   if (session) {
+    console.log(`>> ${JSON.stringify(session)} <<`);
     const firstName = session.user.name.split(' ')[0];
     return (
       <BasicLayout>
