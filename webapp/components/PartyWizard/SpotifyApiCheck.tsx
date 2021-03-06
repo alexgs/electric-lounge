@@ -10,7 +10,7 @@ import * as React from 'react';
 
 export const SpotifyApiCheck: React.FC = () => {
   const [someState, setSomeState] = React.useState<unknown>(null);
-  const [ session, loading ] = useSession();
+  const [session, loading] = useSession();
 
   React.useEffect(() => {
     if (session && !someState) {
@@ -23,7 +23,7 @@ export const SpotifyApiCheck: React.FC = () => {
             Accept: 'application/json',
             Authorization: `Bearer ${spotifyToken}`,
             'Content-Type': 'application/json',
-          }
+          },
         });
         const payload: unknown = await response.json();
         setSomeState(payload);
@@ -33,9 +33,13 @@ export const SpotifyApiCheck: React.FC = () => {
     }
   }, [session]);
 
-  if (loading || !session) {
+  if (loading || !session || !someState) {
     return null;
   }
 
-  return <div>Placeholder</div>;
-}
+  return (
+    <div>
+      <pre>{JSON.stringify(someState, null, 2)}</pre>
+    </div>
+  );
+};
