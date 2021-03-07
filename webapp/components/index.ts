@@ -8,3 +8,4 @@ export { GlobalStyles } from './GlobalStyles';
 export { LoginWidget } from './LoginWidget';
 export { Logo } from './Logo';
 export { default as PartyWizard } from './PartyWizard';
+export { Spinner } from './Spinner';

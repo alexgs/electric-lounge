@@ -9,7 +9,7 @@ import Head from 'next/head';
 import Image from 'next/image'
 import * as React from 'react';
 
-import { Accordion, Logo, PartyWizard as Panels } from 'components';
+import { Accordion, Logo, PartyWizard as Panels, Spinner } from 'components';
 import { BasicLayout } from 'components/layouts';
 import { space } from 'components/tokens';
 
@@ -47,8 +47,8 @@ const PartyWizard: React.FC = () => {
         <Accordion heading={'For those about to rock...'}>
           We salute you!
         </Accordion>
-        <Accordion heading={'Here at the Electric Lounge...'}>
-          No one&apos;s afraid to laugh.
+        <Accordion heading={'Spinners'}>
+          <Spinner />
         </Accordion>
       </BasicLayout>
     )

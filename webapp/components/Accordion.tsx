@@ -18,7 +18,6 @@ import { color, font, space } from 'components/tokens';
 
 const Container = styled.div({
   borderBottom: `1px solid ${color.primaryDark}`,
-  cursor: 'pointer',
   marginBottom: space.medium,
   paddingTop: space.small,
   paddingBottom: space.small,
@@ -27,6 +26,7 @@ Container.displayName = 'Accordion.Container';
 
 const Heading = styled.div({
   color: color.primaryLight,
+  cursor: 'pointer',
   display: 'flex',
   fontSize: font.size.heading4,
   fontWeight: 700,
