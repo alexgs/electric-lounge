@@ -3,6 +3,8 @@
  * the Open Software License version 3.0.
  */
 
+export * as Spotify from './spotify-api';
+
 export interface RefreshErrorResult {
   status: number;
   statusMessage: string;

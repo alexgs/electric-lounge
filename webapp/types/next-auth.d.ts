@@ -45,7 +45,11 @@ declare module 'next-auth/adapters' {
 }
 
 declare module 'next-auth/client' {
+  import { NextApiRequest, NextPageContext } from 'next';
+
   const Provider: React.FC<ProviderProps>;
+
+  type NextContextLike = NextPageContext | { req: NextApiRequest };
 
   interface ProviderProps {
     session: unknown;
@@ -64,6 +68,8 @@ declare module 'next-auth/client' {
     email: string;
     image: string;
   }
+
+  function getSession(context?: NextContextLike): Promise<Session>;
 
   function signIn(): Promise<void>;
 
