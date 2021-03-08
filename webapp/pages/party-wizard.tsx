@@ -20,8 +20,9 @@ import { BasicLayout } from 'components/layouts';
 import { space } from 'components/tokens';
 
 const ID = {
-  API: 'spotify-api-check',
-  SALUTE: 'for-those-about-to-rock',
+  CHECK: 'spotify-api-check',
+  DETAILS: 'fetch-playlist-details',
+  PLAYLISTS: 'fetch-list-of-playlists',
   SPIN: 'spinner-demo',
 };
 
@@ -47,8 +48,9 @@ function getInitialState() {
   }
 
   return {
-    [ID.API]: JSON.parse(sessionStorage.getItem(ID.API) ?? 'false'),
-    [ID.SALUTE]: JSON.parse(sessionStorage.getItem(ID.SALUTE) ?? 'false'),
+    [ID.CHECK]: JSON.parse(sessionStorage.getItem(ID.CHECK) ?? 'false'),
+    [ID.DETAILS]: JSON.parse(sessionStorage.getItem(ID.DETAILS) ?? 'false'),
+    [ID.PLAYLISTS]: JSON.parse(sessionStorage.getItem(ID.PLAYLISTS) ?? 'false'),
     [ID.SPIN]: JSON.parse(sessionStorage.getItem(ID.SPIN) ?? 'false'),
   }
 }
@@ -88,20 +90,28 @@ const PartyWizard: React.FC = () => {
           <span>Hello, {firstName}. You&apos;re ready to rock! 🤘</span>
         </Welcome>
         <Accordion
-          heading={'Spotify API'}
-          isOpen={state[ID.API]}
+          heading={'Spotify API Check'}
+          isOpen={state[ID.CHECK]}
           onClick={handleAccordionClick}
-          uniqueId={ID.API}
+          uniqueId={ID.CHECK}
         >
           <Panels.SpotifyApiCheck />
         </Accordion>
         <Accordion
-          heading={'For those about to rock...'}
-          isOpen={state[ID.SALUTE]}
+          heading={'Fetch a list of playlists'}
+          isOpen={state[ID.PLAYLISTS]}
           onClick={handleAccordionClick}
-          uniqueId={ID.SALUTE}
+          uniqueId={ID.PLAYLISTS}
         >
-          We salute you!
+          <Panels.FetchPlaylists />
+        </Accordion>
+        <Accordion
+          heading={'Fetch details for one specific playlist'}
+          isOpen={state[ID.DETAILS]}
+          onClick={handleAccordionClick}
+          uniqueId={ID.DETAILS}
+        >
+          <Panels.FetchPlaylistDetails />
         </Accordion>
         <Accordion
           heading={'Spinners'}

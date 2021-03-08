@@ -3,6 +3,6 @@
  * the Open Software License version 3.0.
  */
 
-import { SpotifyApiCheck } from './SpotifyApiCheck';
-
-export default { SpotifyApiCheck };
+export { FetchPlaylists } from './FetchPlaylists';
+export { FetchPlaylistDetails } from './FetchPlaylistDetails';
+export { SpotifyApiCheck } from './SpotifyApiCheck';
