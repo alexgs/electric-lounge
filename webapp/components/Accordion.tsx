@@ -50,17 +50,20 @@ const contentCss = {
 interface Props {
   children: React.ReactNode;
   heading: string;
+  isOpen: boolean;
+  onClick: (id: string) => void;
+  uniqueId: string;
 }
 
 export const Accordion: React.FC<Props> = (props: Props) => {
   const defaultHeight = 0;
-  const [isOpen, setIsOpen] = React.useState(false);
+  // const [isOpen, setIsOpen] = React.useState(false);
   const [contentHeight, setContentHeight] = React.useState(defaultHeight);
   const [ref, { height }] = useMeasure();
 
   const expand = useSpring({
     // config: { friction: 10 },
-    height: isOpen ? `${contentHeight}px` : `${defaultHeight}px`,
+    height: props.isOpen ? `${contentHeight}px` : `${defaultHeight}px`,
   });
 
   React.useEffect(() => {
@@ -75,11 +78,11 @@ export const Accordion: React.FC<Props> = (props: Props) => {
   }, [height]);
 
   function handleHeadingClick() {
-    setIsOpen((prevState) => !prevState);
+    props.onClick(props.uniqueId);
   }
 
   // TODO Change the chevron animation to also use react-spring?
-  const rotation = isOpen ? 0 : 90;
+  const rotation = props.isOpen ? 0 : 90;
   const chevronCss = {
     transform: `rotate(${rotation}deg)`,
     transition: 'all 200ms ease',
