@@ -57,12 +57,10 @@ interface Props {
 
 export const Accordion: React.FC<Props> = (props: Props) => {
   const defaultHeight = 0;
-  // const [isOpen, setIsOpen] = React.useState(false);
   const [contentHeight, setContentHeight] = React.useState(defaultHeight);
   const [ref, { height }] = useMeasure();
 
   const expand = useSpring({
-    // config: { friction: 10 },
     height: props.isOpen ? `${contentHeight}px` : `${defaultHeight}px`,
   });
 

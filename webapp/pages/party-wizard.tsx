@@ -35,15 +35,30 @@ interface Action {
 
 type State = Record<string, boolean>;
 
+function getInitialState() {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+
+  return {
+    [ID.API]: JSON.parse(sessionStorage.getItem(ID.API) ?? 'false'),
+    [ID.SALUTE]: JSON.parse(sessionStorage.getItem(ID.SALUTE) ?? 'false'),
+    [ID.SPIN]: JSON.parse(sessionStorage.getItem(ID.SPIN) ?? 'false'),
+  }
+}
+
 function reducer(state: State, action: Action) {
+  const id = action.accordionId;
+  const newValue = !state[id];
+  sessionStorage.setItem(id, `${newValue}`);
   return {
     ...state,
-    [action.accordionId]: !state[action.accordionId],
+    [id]: newValue,
   };
 }
 
 const PartyWizard: React.FC = () => {
-  const [state, dispatch] = React.useReducer(reducer, {});
+  const [state, dispatch] = React.useReducer(reducer, {}, getInitialState);
   const [session, loading] = useSession();
 
   function handleAccordionClick(id: string) {
@@ -55,7 +70,6 @@ const PartyWizard: React.FC = () => {
   }
 
   if (session) {
-    // console.log(`--> Session <--\n${JSON.stringify(session, null, 2)}\n--> Session <--`);
     const firstName = session.user.name.split(' ')[0];
     return (
       <BasicLayout>

@@ -17,11 +17,6 @@ type LoadingState = 'not-loaded' | 'loading' | 'complete' | 'error';
 //   component that just takes a function; then individual panels would each
 //   basically compose a specific API function with the generic component. Might
 //   be more trouble than it's worth.
-// TODO I'd like the open/close state of each accordion to persist across page
-//   refreshes. But I also want it to be unique to each window, so I can have
-//   different panels open in different tabs simultaneously. (There's maybe a
-//   way to use a window or tab's unique ID or something as a key, even if the
-//   state is shared across tabs, e.g., in `local storage` or whatever).
 
 export const SpotifyApiCheck: React.FC = () => {
   const [loadingState, setLoadingState] = React.useState<LoadingState>(
