@@ -42,6 +42,10 @@ const bodyCss = {
   overflow: 'hidden',
 };
 
+const chevronBoxCss = {
+  display: 'inline-block',
+};
+
 const contentCss = {
   paddingTop: space.medium,
   paddingBottom: space.medium,
@@ -64,6 +68,10 @@ export const Accordion: React.FC<Props> = (props: Props) => {
     height: props.isOpen ? `${contentHeight}px` : `${defaultHeight}px`,
   });
 
+  const rotation = useSpring({
+    transform: props.isOpen ? 'rotate(0deg)' : 'rotate(90deg)',
+  })
+
   React.useEffect(() => {
     //Sets initial height
     setContentHeight(height);
@@ -79,22 +87,17 @@ export const Accordion: React.FC<Props> = (props: Props) => {
     props.onClick(props.uniqueId);
   }
 
-  // TODO Change the chevron animation to also use react-spring?
-  const rotation = props.isOpen ? 0 : 90;
-  const chevronCss = {
-    transform: `rotate(${rotation}deg)`,
-    transition: 'all 200ms ease',
-  };
   return (
     <Container>
       <Heading onClick={handleHeadingClick}>
         <HeadingContent>{props.heading}</HeadingContent>
         <HeadingContent css={{ marginLeft: 'auto' }}>
-          <FontAwesomeIcon
-            css={chevronCss}
-            icon={faChevronDown}
-            fixedWidth={true}
-          />
+          <animated.div css={chevronBoxCss} style={rotation}>
+            <FontAwesomeIcon
+              icon={faChevronDown}
+              fixedWidth={true}
+            />
+          </animated.div>
         </HeadingContent>
       </Heading>
       <animated.div css={bodyCss} style={expand}>

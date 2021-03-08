@@ -9,7 +9,13 @@ import Head from 'next/head';
 import Image from 'next/image';
 import * as React from 'react';
 
-import { Accordion, Logo, PartyWizard as Panels, Spinner } from 'components';
+import {
+  Accordion,
+  Logo,
+  Maybe,
+  PartyWizard as Panels,
+  Spinner,
+} from 'components';
 import { BasicLayout } from 'components/layouts';
 import { space } from 'components/tokens';
 
@@ -103,7 +109,9 @@ const PartyWizard: React.FC = () => {
           onClick={handleAccordionClick}
           uniqueId={ID.SPIN}
         >
-          <Spinner />
+          <Maybe test={state[ID.SPIN]}>
+            <Spinner />
+          </Maybe>
         </Accordion>
       </BasicLayout>
     );
