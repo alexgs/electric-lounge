@@ -28,9 +28,9 @@ export const FetchPlaylists: React.FC = () => {
   async function handleFetchClick() {
     if (session) {
       setLoadingState('loading');
+      const spotifyId = session.spotifyId ?? 'missing-spotify-id';
       const spotifyToken = session.spotifyToken ?? 'missing-access-token';
-      // TODO
-      const response = await fetch(`https://api.spotify.com/v1/me`, {
+      const response = await fetch(`https://api.spotify.com/v1/users/${spotifyId}/playlists`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -53,7 +53,7 @@ export const FetchPlaylists: React.FC = () => {
         <JsonDisplay data={data} />
       </Maybe>
       <div>
-        <button disabled={true} onClick={handleFetchClick}>Fetch</button>
+        <button onClick={handleFetchClick}>Fetch</button>
         <button css={{ marginLeft: space.small }} onClick={handleClearClick}>
           Clear
         </button>

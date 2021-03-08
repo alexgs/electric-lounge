@@ -77,7 +77,9 @@ async function getValidAccessToken(user: User): Promise<TokenResult> {
     await prisma.account.update({
       data: {
         accessToken: tokenResult.access_token,
-        accessTokenExpires: DateTime.now().plus({ seconds: tokenResult.expires_in }).toJSDate(),
+        accessTokenExpires: DateTime.now()
+          .plus({ seconds: tokenResult.expires_in })
+          .toJSDate(),
         updatedAt: new Date(),
       },
       where: { id: dbResult.id },
@@ -94,16 +96,29 @@ export default NextAuth({
   adapter: Adapters.Prisma.Adapter({ prisma }),
   callbacks: {
     async session(session, user) {
-      const result = await getValidAccessToken(user as User);
-      if (result.accessToken) {
+      const idResult = await prisma.account.findFirst({
+        where: {
+          userId: user.id as number,
+          providerId: 'spotify',
+        },
+      });
+      const tokenResult = await getValidAccessToken(user as User);
+      if (tokenResult.accessToken && idResult?.providerAccountId) {
         return {
           ...session,
-          spotifyToken: result.accessToken,
+          spotifyId: idResult.providerAccountId,
+          spotifyToken: tokenResult.accessToken,
         };
       }
 
-      if (result.error) {
-        console.log(result.error);
+      if (!idResult?.providerAccountId) {
+        const userId = user.id as number;
+        console.log(
+          `Something bad happened while trying to get the Spotify ID for user ${userId}`,
+        );
+      }
+      if (tokenResult.error) {
+        console.log(tokenResult.error);
       }
       return session;
     },

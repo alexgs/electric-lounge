@@ -55,6 +55,7 @@ declare module 'next-auth/client' {
     user: User;
     accessToken?: string;
     expires: string;
+    spotifyId?: string;
     spotifyToken?: string;
   }
 

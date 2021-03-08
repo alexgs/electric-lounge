@@ -23,6 +23,7 @@ const SolarCode = styled.pre({
   color: solarized.base0,
   fontFamily: '\'JetBrains Mono\', monospace',
   fontSize: font.size.kindaSmall,
+  overflowX: 'auto',
   padding: space.small,
 });
 
