@@ -11,6 +11,10 @@ import { space } from 'components/tokens';
 
 import { JsonDisplay } from './JsonDisplay';
 
+const JANUARY_2021 = '77fNisrK3i50hCB8kVhEWH';
+const FEBRUARY_2021 = '1uHIHWIyTtJIyPKy3Q41w3';
+const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
+
 type LoadingState = 'not-loaded' | 'loading' | 'complete' | 'error';
 
 export const FetchPlaylistDetails: React.FC = () => {
@@ -29,8 +33,8 @@ export const FetchPlaylistDetails: React.FC = () => {
     if (session) {
       setLoadingState('loading');
       const spotifyToken = session.spotifyToken ?? 'missing-access-token';
-      // TODO
-      const response = await fetch(`https://api.spotify.com/v1/me`, {
+      const fields = 'id,name,tracks.items(added_at,track.id)';
+      const response = await fetch(`https://api.spotify.com/v1/playlists/${MARCH_2021}?fields=${fields}`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -53,7 +57,7 @@ export const FetchPlaylistDetails: React.FC = () => {
         <JsonDisplay data={data} />
       </Maybe>
       <div>
-        <button disabled={true} onClick={handleFetchClick}>Fetch</button>
+        <button onClick={handleFetchClick}>Fetch</button>
         <button css={{ marginLeft: space.small }} onClick={handleClearClick}>
           Clear
         </button>
