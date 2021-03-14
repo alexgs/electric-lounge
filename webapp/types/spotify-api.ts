@@ -19,6 +19,15 @@ export interface PlaylistObject {
   description: string;
   id: string;
   name: string;
+  tracks: PlaylistTrackObject[];
+
+  [key: string]: unknown;
+}
+
+// https://developer.spotify.com/documentation/web-api/reference/#object-playlisttrackobject
+export interface PlaylistTrackObject {
+  added_at: string; // timestamp
+  track: TrackObject;
 
   [key: string]: unknown;
 }
@@ -44,6 +53,14 @@ export interface SimplifiedPlaylistObject {
   name: string;
   owner: PublicUserObject;
   tracks: PlaylistTracksRefObject;
+
+  [key: string]: unknown;
+}
+
+// https://developer.spotify.com/documentation/web-api/reference/#object-trackobject
+export interface TrackObject {
+  id: string;
+  name: string;
 
   [key: string]: unknown;
 }

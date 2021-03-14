@@ -10,7 +10,11 @@ import { getSession } from 'next-auth/client';
 import { spotifyUrl } from 'lib';
 import { Spotify } from 'types';
 
-type PlayLists = Spotify.PagingObject<Spotify.SimplifiedPlaylistObject>;
+type Playlist = Spotify.PlaylistObject;
+
+const JANUARY_2021 = '77fNisrK3i50hCB8kVhEWH';
+const FEBRUARY_2021 = '1uHIHWIyTtJIyPKy3Q41w3';
+const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
 
 async function handler(
   request: NextApiRequest,
@@ -38,10 +42,12 @@ async function handler(
       'User-Agent':
         'Electric Lounge (https://github.com/alexgs/electric-lounge)',
     };
-    const url = spotifyUrl.playlists(spotifyId)
+    const url = spotifyUrl.playlist(MARCH_2021);
     const playlistResponse = await got(url, { headers });
-    const playlists = JSON.parse(playlistResponse.body) as PlayLists;
-    response.status(200).json({ ...playlists });
+    const playlist = JSON.parse(playlistResponse.body) as Playlist;
+    response.status(200).json({ ...playlist });
+
+    // TODO Save it into the database
   } catch (error) {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
     response.status(500).json({
