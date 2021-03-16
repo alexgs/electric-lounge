@@ -1,7 +1,7 @@
 export { default as prisma } from './prisma';
 export { refreshAccessToken } from './refresh';
 
-const PLAYLIST_FIELDS = 'id,name,tracks.items(added_at,track.id)';
+const PLAYLIST_FIELDS = 'id,name,tracks.items(added_at,track.id,track.name)';
 
 export const spotifyUrl = {
   playlists: (spotifyUserId: string, limit = 50): string =>

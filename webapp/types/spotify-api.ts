@@ -3,6 +3,10 @@
  * the Open Software License version 3.0.
  */
 
+export interface ArrayObject<Item> {
+  items: Item[];
+}
+
 // https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject
 export interface PagingObject<Item> {
   href: string;
@@ -19,7 +23,7 @@ export interface PlaylistObject {
   description: string;
   id: string;
   name: string;
-  tracks: PlaylistTrackObject[];
+  tracks: ArrayObject<PlaylistTrackObject>;
 
   [key: string]: unknown;
 }

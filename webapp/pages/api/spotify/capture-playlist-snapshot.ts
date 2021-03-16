@@ -3,8 +3,8 @@
  * the Open Software License version 3.0.
  */
 
-import { PlaylistTrack } from '@prisma/client';
 import got from 'got';
+import * as _ from 'lodash';
 import { DateTime } from 'luxon';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
@@ -17,6 +17,66 @@ type Playlist = Spotify.PlaylistObject;
 const JANUARY_2021 = '77fNisrK3i50hCB8kVhEWH';
 const FEBRUARY_2021 = '1uHIHWIyTtJIyPKy3Q41w3';
 const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
+
+// async function upsertTracks(tracks: Spotify.PlaylistTrackObject[]) {
+//   // const spotifyTracks = tracks.map(track => track.track);
+//   for (let i = 0; i < tracks.length; i++) {
+//     const track = tracks[i];
+//     // Upsert base track data
+//     const dbTrack = await prisma.track.upsert({
+//       where: { spotifyId: track.track.id },
+//       create: {
+//         spotifyId: track.track.id,
+//         name: track.track.name,
+//       },
+//       update: {},
+//     });
+//     const dbPlaylistTrack = await prisma.playlistTrack.create({
+//       data: {
+//         addedAt: DateTime.fromISO(track.added_at).toJSDate(),
+//         trackId: dbTrack.id,
+//       },
+//     });
+//   }
+// }
+
+async function updateDbTracks(
+  spotifyPlaylistTracks: Spotify.PlaylistTrackObject[],
+) {
+  const incomingSpotifyTrackIds = spotifyPlaylistTracks.map(
+    (trackObject) => trackObject.track.id,
+  );
+  const existingDbTracks = await prisma.track.findMany({
+    where: {
+      spotifyId: { in: incomingSpotifyTrackIds },
+    },
+  });
+  const existingSpotifyTrackIds = existingDbTracks.map(
+    (track) => track.spotifyId,
+  );
+  const newSpotifyTrackIds = _.difference(
+    incomingSpotifyTrackIds,
+    existingSpotifyTrackIds,
+  );
+  for (let i = 0; i < newSpotifyTrackIds.length; i++) {
+    const spotifyTrackId = newSpotifyTrackIds[i];
+    const trackData = spotifyPlaylistTracks.find(
+      (trackObject) => trackObject.id === spotifyTrackId,
+    );
+    if (trackData) {
+      await prisma.track.create({
+        data: {
+          spotifyId: trackData.track.id,
+          name: trackData.track.name,
+        },
+      });
+    } else {
+      console.error(
+        `>> Something bad happened trying to insert Spotify track ID "${spotifyTrackId}" <<`,
+      );
+    }
+  }
+}
 
 async function handler(
   request: NextApiRequest,
@@ -47,46 +107,14 @@ async function handler(
     const url = spotifyUrl.playlist(MARCH_2021);
     const playlistResponse = await got(url, { headers });
     const spPlaylist = JSON.parse(playlistResponse.body) as Playlist;
-    response.status(200).json({ ...spPlaylist });
 
-    // TODO Build a list of tracks that are not currently in the database
-    const spTrackIds = spPlaylist.tracks.map(
-      (spPlaylistTrack) => spPlaylistTrack.track.id,
-    );
-    const dbSpotifyTracks = await prisma.track.findMany({
-      where: {
-        spotifyId: { in: spTrackIds },
-      },
-    });
-    const knownSpotifyTracks = dbSpotifyTracks.reduce((output, dbTrack) => {
-      return {
-        ...output,
-        [dbTrack.spotifyId]: dbTrack,
-      };
-    }, {});
-    const knownSpotifyTrackIds = Object.keys(knownSpotifyTracks);
+    await updateDbTracks(spPlaylist.tracks.items);
 
-    // TODO Package playlist-tracks for nested write
-    const dbPlaylistTracks = spPlaylist.tracks.map((spPlaylistTrack): PlaylistTrack => {
-      return {
-        addedAt: DateTime.fromISO(spPlaylistTrack.added_at).toJSDate(),
-        trackId: knownSpotifyTracks[spPlaylistTrack.track.id].id,
-      }
-    });
-
-    // TODO Save playlist and snapshot into the database
     const dbPlaylist = await prisma.playlist.upsert({
       where: { spotifyId: spPlaylist.id },
       update: {
         name: spPlaylist.name,
         description: spPlaylist.description,
-        snapshots: {
-          create: {
-            description: spPlaylist.description,
-            name: spPlaylist.name,
-            // tracks: [],
-          },
-        },
       },
       create: {
         name: spPlaylist.name,
@@ -94,15 +122,41 @@ async function handler(
         spotifyId: spPlaylist.id,
       },
     });
-    // const dbSnapshot = await prisma.playlistSnapshot.insert({})
+
+    const createTracks = spPlaylist.tracks.items.map((trackObject) => ({
+      addedAt: DateTime.fromISO(trackObject.added_at).toJSDate(),
+      track: { connect: { spotifyId: trackObject.track.id } },
+    }));
+
+    const theEnd = await prisma.playlist.update({
+      where: { id: dbPlaylist.id },
+      data: {
+        snapshots: {
+          create: {
+            tracks: {
+              create: createTracks,
+            },
+            name: spPlaylist.name,
+            description: spPlaylist.description,
+          },
+        },
+      },
+    });
+
+    response.status(200).json({ ...theEnd });
   } catch (error) {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
-    response.status(500).json({
-      status: error.response.statusCode,
-      statusMessage: error.response.statusMessage,
-      body: JSON.parse(error.response.body),
-    });
-    /* eslint-enable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
+    if (error.response) {
+      response.status(500).json({
+        status: error.response.statusCode,
+        statusMessage: error.response.statusMessage,
+        body: JSON.parse(error.response.body),
+      });
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
+    } else {
+      console.error(error);
+      response.status(500).send('Internal server error');
+    }
   }
 }
 
