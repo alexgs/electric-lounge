@@ -3,11 +3,13 @@
  * the Open Software License version 3.0.
  */
 
+import { PlaylistTrack } from '@prisma/client';
 import got from 'got';
+import { DateTime } from 'luxon';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
 
-import { spotifyUrl } from 'lib';
+import { prisma, spotifyUrl } from 'lib';
 import { Spotify } from 'types';
 
 type Playlist = Spotify.PlaylistObject;
@@ -44,10 +46,55 @@ async function handler(
     };
     const url = spotifyUrl.playlist(MARCH_2021);
     const playlistResponse = await got(url, { headers });
-    const playlist = JSON.parse(playlistResponse.body) as Playlist;
-    response.status(200).json({ ...playlist });
+    const spPlaylist = JSON.parse(playlistResponse.body) as Playlist;
+    response.status(200).json({ ...spPlaylist });
 
-    // TODO Save it into the database
+    // TODO Build a list of tracks that are not currently in the database
+    const spTrackIds = spPlaylist.tracks.map(
+      (spPlaylistTrack) => spPlaylistTrack.track.id,
+    );
+    const dbSpotifyTracks = await prisma.track.findMany({
+      where: {
+        spotifyId: { in: spTrackIds },
+      },
+    });
+    const knownSpotifyTracks = dbSpotifyTracks.reduce((output, dbTrack) => {
+      return {
+        ...output,
+        [dbTrack.spotifyId]: dbTrack,
+      };
+    }, {});
+    const knownSpotifyTrackIds = Object.keys(knownSpotifyTracks);
+
+    // TODO Package playlist-tracks for nested write
+    const dbPlaylistTracks = spPlaylist.tracks.map((spPlaylistTrack): PlaylistTrack => {
+      return {
+        addedAt: DateTime.fromISO(spPlaylistTrack.added_at).toJSDate(),
+        trackId: knownSpotifyTracks[spPlaylistTrack.track.id].id,
+      }
+    });
+
+    // TODO Save playlist and snapshot into the database
+    const dbPlaylist = await prisma.playlist.upsert({
+      where: { spotifyId: spPlaylist.id },
+      update: {
+        name: spPlaylist.name,
+        description: spPlaylist.description,
+        snapshots: {
+          create: {
+            description: spPlaylist.description,
+            name: spPlaylist.name,
+            // tracks: [],
+          },
+        },
+      },
+      create: {
+        name: spPlaylist.name,
+        description: spPlaylist.description,
+        spotifyId: spPlaylist.id,
+      },
+    });
+    // const dbSnapshot = await prisma.playlistSnapshot.insert({})
   } catch (error) {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
     response.status(500).json({
