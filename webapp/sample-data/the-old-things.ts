@@ -9,16 +9,10 @@ import { DateTime } from 'luxon';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
 
-import {
-  getSpotifyTrackIds,
-  prisma,
-  rectifyPlaylistTracks,
-  spotifyUrl,
-} from 'lib';
+import { prisma, spotifyUrl } from 'lib';
 import { Spotify } from 'types';
 
-type CleanPlaylist = Spotify.CleanPlaylistObject;
-type RawPlaylist = Spotify.RawPlaylistObject;
+type Playlist = Spotify.PlaylistObject;
 
 const JANUARY_2021 = '77fNisrK3i50hCB8kVhEWH';
 const FEBRUARY_2021 = '1uHIHWIyTtJIyPKy3Q41w3';
@@ -47,10 +41,13 @@ const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
 // }
 
 async function updateDbTracks(
-  spotifyPlaylistTracks: Spotify.RawPlaylistTrackObject[],
+  spotifyPlaylistTracks: Spotify.PlaylistTrackObject[],
 ) {
   console.log(`  --> Step A <--`);
-  const incomingSpotifyTrackIds = getSpotifyTrackIds(spotifyPlaylistTracks);
+  // Remove falsey ID values, which can be due to local tracks
+  const incomingSpotifyTrackIds = spotifyPlaylistTracks.map(
+    (trackObject) => trackObject.track.id,
+  ).filter(id => id);
   console.log(`  --> Step B <--`);
   // console.log(incomingSpotifyTrackIds);
   const existingDbTracks = await prisma.track.findMany({
@@ -122,27 +119,87 @@ async function handler(
     };
     const url = spotifyUrl.playlist(MARCH_2021);
     const playlistResponse = await got(url, { headers });
-    const rawPlaylist = JSON.parse(playlistResponse.body) as RawPlaylist;
-    const cleanPlaylist = rectifyPlaylistTracks(rawPlaylist);
+    const spPlaylist = JSON.parse(playlistResponse.body) as Playlist;
     console.log(`--> Step 0 <--`);
 
-    await updateDbTracks(rawPlaylist.tracks.items);
+    await updateDbTracks(spPlaylist.tracks.items);
     console.log(`--> Step 1 <--`);
+    // response.status(500).send('Early exit');
+    // return;
 
     const dbPlaylist = await prisma.playlist.upsert({
-      where: { spotifyId: cleanPlaylist.id },
+      where: { spotifyId: spPlaylist.id },
       update: {
-        name: cleanPlaylist.name,
-        description: cleanPlaylist.description,
+        name: spPlaylist.name,
+        description: spPlaylist.description,
       },
       create: {
-        name: cleanPlaylist.name,
-        description: cleanPlaylist.description,
-        spotifyId: cleanPlaylist.id,
+        name: spPlaylist.name,
+        description: spPlaylist.description,
+        spotifyId: spPlaylist.id,
       },
     });
     console.log(`--> Step 2 <--`);
 
+    // const createTracks = spPlaylist.tracks.items.map((trackObject) => ({
+    //   addedAt: DateTime.fromISO(trackObject.added_at).toJSDate(),
+    //   track: { connect: [{ spotifyId: trackObject.track.id }] },
+    // }));
+    const spotifyTrackIds = spPlaylist.tracks.items.map((trackObject) => (trackObject.track.id)).filter(id => id);
+    const dbTracks = await prisma.track.findMany({ where: { spotifyId: { in: spotifyTrackIds } } });
+    const trackIdMap = dbTracks.reduce((output, dbTrack) => {
+      return {
+        ...output,
+        [dbTrack.spotifyId]: dbTrack.id,
+      }
+    }, {} as {[key: string]: number});
+    console.log(`  --> Step A <--`);
+
+    const createTracks = spPlaylist.tracks.items.map(track => {
+      return {
+        addedAt: track.added_at,
+        // trackId: trackIdMap[track.track.id],
+        track: { connect: { spotifyId: track.track.id } },
+      };
+    });
+    const dbPlaylistTracks = [];
+    for (let i = 0; i < createTracks.length; i++) {
+      const result = await prisma.playlistTrack.create({ data: createTracks[i] });
+      dbPlaylistTracks.push(result);
+    }
+    console.log(`  --> Step B <--`);
+
+    const dbSnapshot = await prisma.playlistSnapshot.create({
+      data: {
+        name: spPlaylist.name,
+        description: spPlaylist.description,
+        tracks: {
+          connect: dbPlaylistTracks,
+        }
+      },
+    });
+    console.log(`--> Step 3 <--`);
+    console.log(dbSnapshot);
+    response.status(200).send('Early return');
+    return;
+
+    const theEnd = await prisma.playlist.update({
+      where: { id: dbPlaylist.id },
+      data: {
+        snapshots: {
+          create: {
+            tracks: {
+              create: createTracks,
+            },
+            name: spPlaylist.name,
+            description: spPlaylist.description,
+          },
+        },
+      },
+    });
+    console.log(`--> Step 4 <--`);
+
+    response.status(200).json({ ...theEnd });
   } catch (error) {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
     if (error.response) {
