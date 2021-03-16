@@ -43,26 +43,38 @@ const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
 async function updateDbTracks(
   spotifyPlaylistTracks: Spotify.PlaylistTrackObject[],
 ) {
+  console.log(`  --> Step A <--`);
+  // Remove falsey ID values, which can be due to local tracks
   const incomingSpotifyTrackIds = spotifyPlaylistTracks.map(
     (trackObject) => trackObject.track.id,
-  );
+  ).filter(id => id);
+  console.log(`  --> Step B <--`);
+  // console.log(incomingSpotifyTrackIds);
   const existingDbTracks = await prisma.track.findMany({
     where: {
       spotifyId: { in: incomingSpotifyTrackIds },
     },
   });
+  console.log(`  --> Step C <--`);
   const existingSpotifyTrackIds = existingDbTracks.map(
     (track) => track.spotifyId,
   );
+  console.log(`  --> Step D <--`);
   const newSpotifyTrackIds = _.difference(
     incomingSpotifyTrackIds,
     existingSpotifyTrackIds,
   );
+  console.log(`  --> Step E <--`);
   for (let i = 0; i < newSpotifyTrackIds.length; i++) {
+    // if (i > 0) {
+    //   return;
+    // }
     const spotifyTrackId = newSpotifyTrackIds[i];
+    // console.log(`     -+- Spotify track ID: ${spotifyTrackId} -+-`);
     const trackData = spotifyPlaylistTracks.find(
-      (trackObject) => trackObject.id === spotifyTrackId,
+      (trackObject) => trackObject.track.id === spotifyTrackId,
     );
+    // console.log(`     -+- track data: ${trackData} -+-`);
     if (trackData) {
       await prisma.track.create({
         data: {
@@ -76,6 +88,7 @@ async function updateDbTracks(
       );
     }
   }
+  console.log(`  --> Step F <--`);
 }
 
 async function handler(
@@ -107,8 +120,12 @@ async function handler(
     const url = spotifyUrl.playlist(MARCH_2021);
     const playlistResponse = await got(url, { headers });
     const spPlaylist = JSON.parse(playlistResponse.body) as Playlist;
+    console.log(`--> Step 0 <--`);
 
     await updateDbTracks(spPlaylist.tracks.items);
+    console.log(`--> Step 1 <--`);
+    // response.status(500).send('Early exit');
+    // return;
 
     const dbPlaylist = await prisma.playlist.upsert({
       where: { spotifyId: spPlaylist.id },
@@ -122,11 +139,49 @@ async function handler(
         spotifyId: spPlaylist.id,
       },
     });
+    console.log(`--> Step 2 <--`);
 
-    const createTracks = spPlaylist.tracks.items.map((trackObject) => ({
-      addedAt: DateTime.fromISO(trackObject.added_at).toJSDate(),
-      track: { connect: { spotifyId: trackObject.track.id } },
-    }));
+    // const createTracks = spPlaylist.tracks.items.map((trackObject) => ({
+    //   addedAt: DateTime.fromISO(trackObject.added_at).toJSDate(),
+    //   track: { connect: [{ spotifyId: trackObject.track.id }] },
+    // }));
+    const spotifyTrackIds = spPlaylist.tracks.items.map((trackObject) => (trackObject.track.id)).filter(id => id);
+    const dbTracks = await prisma.track.findMany({ where: { spotifyId: { in: spotifyTrackIds } } });
+    const trackIdMap = dbTracks.reduce((output, dbTrack) => {
+      return {
+        ...output,
+        [dbTrack.spotifyId]: dbTrack.id,
+      }
+    }, {} as {[key: string]: number});
+    console.log(`  --> Step A <--`);
+
+    const createTracks = spPlaylist.tracks.items.map(track => {
+      return {
+        addedAt: track.added_at,
+        // trackId: trackIdMap[track.track.id],
+        track: { connect: { spotifyId: track.track.id } },
+      };
+    });
+    const dbPlaylistTracks = [];
+    for (let i = 0; i < createTracks.length; i++) {
+      const result = await prisma.playlistTrack.create({ data: createTracks[i] });
+      dbPlaylistTracks.push(result);
+    }
+    console.log(`  --> Step B <--`);
+
+    const dbSnapshot = await prisma.playlistSnapshot.create({
+      data: {
+        name: spPlaylist.name,
+        description: spPlaylist.description,
+        tracks: {
+          connect: dbPlaylistTracks,
+        }
+      },
+    });
+    console.log(`--> Step 3 <--`);
+    console.log(dbSnapshot);
+    response.status(200).send('Early return');
+    return;
 
     const theEnd = await prisma.playlist.update({
       where: { id: dbPlaylist.id },
@@ -142,6 +197,7 @@ async function handler(
         },
       },
     });
+    console.log(`--> Step 4 <--`);
 
     response.status(200).json({ ...theEnd });
   } catch (error) {

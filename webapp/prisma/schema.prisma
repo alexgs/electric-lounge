@@ -24,8 +24,8 @@ model Playlist {
 
 model PlaylistSnapshot {
   id          Int             @id @default(autoincrement())
-  playlist    Playlist        @relation(fields: [playlistId], references: [id])
-  playlistId  Int
+  playlist    Playlist?       @relation(fields: [playlistId], references: [id])
+  playlistId  Int?
   description String?
   name        String
   tracks      PlaylistTrack[]
@@ -34,14 +34,14 @@ model PlaylistSnapshot {
 }
 
 model PlaylistTrack {
-  id         Int              @id @default(autoincrement())
+  id         Int               @id @default(autoincrement())
   addedAt    DateTime
-  track      Track            @relation(fields: [trackId], references: [id])
+  track      Track             @relation(fields: [trackId], references: [id])
   trackId    Int
-  snapshot   PlaylistSnapshot @relation(fields: [snapshotId], references: [id])
-  snapshotId Int
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @default(now()) @updatedAt
+  snapshot   PlaylistSnapshot? @relation(fields: [snapshotId], references: [id])
+  snapshotId Int?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @default(now()) @updatedAt
 }
 
 model Track {
