@@ -17,8 +17,7 @@ import {
 } from 'lib';
 import { Spotify } from 'types';
 
-type CleanPlaylist = Spotify.CleanPlaylistObject;
-type RawPlaylist = Spotify.RawPlaylistObject;
+type Playlist = Spotify.PlaylistObject;
 
 const JANUARY_2021 = '77fNisrK3i50hCB8kVhEWH';
 const FEBRUARY_2021 = '1uHIHWIyTtJIyPKy3Q41w3';
@@ -47,7 +46,7 @@ const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
 // }
 
 async function updateDbTracks(
-  spotifyPlaylistTracks: Spotify.RawPlaylistTrackObject[],
+  spotifyPlaylistTracks: Spotify.PlaylistTrackObject[],
 ) {
   console.log(`  --> Step A <--`);
   const incomingSpotifyTrackIds = getSpotifyTrackIds(spotifyPlaylistTracks);
@@ -122,23 +121,22 @@ async function handler(
     };
     const url = spotifyUrl.playlist(MARCH_2021);
     const playlistResponse = await got(url, { headers });
-    const rawPlaylist = JSON.parse(playlistResponse.body) as RawPlaylist;
-    const cleanPlaylist = rectifyPlaylistTracks(rawPlaylist);
+    const spPlaylist = JSON.parse(playlistResponse.body) as Playlist;
     console.log(`--> Step 0 <--`);
 
-    await updateDbTracks(rawPlaylist.tracks.items);
+    await updateDbTracks(spPlaylist.tracks.items);
     console.log(`--> Step 1 <--`);
 
     const dbPlaylist = await prisma.playlist.upsert({
-      where: { spotifyId: cleanPlaylist.id },
+      where: { spotifyId: spPlaylist.id },
       update: {
-        name: cleanPlaylist.name,
-        description: cleanPlaylist.description,
+        name: spPlaylist.name,
+        description: spPlaylist.description,
       },
       create: {
-        name: cleanPlaylist.name,
-        description: cleanPlaylist.description,
-        spotifyId: cleanPlaylist.id,
+        name: spPlaylist.name,
+        description: spPlaylist.description,
+        spotifyId: spPlaylist.id,
       },
     });
     console.log(`--> Step 2 <--`);

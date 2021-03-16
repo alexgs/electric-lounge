@@ -5,52 +5,54 @@
 
 import { Spotify } from 'types';
 
-// There's a lot of type coercion in here, which is annoying but I don't have
-// the patience right now to deal with Typescript and make it play nice.
+type Playlist = Spotify.PlaylistObject;
+type Track = Spotify.TrackObject;
+type TrackList = Spotify.PlaylistTrackObject[];
 
-type CleanPlaylist = Spotify.CleanPlaylistObject;
-type CleanTrack = Spotify.CleanPlaylistTrackObject;
-type RawPlaylist = Spotify.RawPlaylistObject;
-type TrackList = Spotify.RawPlaylistTrackObject[];
-
-function isPlaylist(list: RawPlaylist | TrackList): list is RawPlaylist {
-  return (list as RawPlaylist).tracks.items !== undefined;
+function cleanId(track: Track) {
+  if (track.is_local) {
+    return {
+      ...track,
+      id: track.uri,
+    };
+  }
+  return track;
 }
 
-export function getSpotifyTrackIds(list: RawPlaylist | TrackList): string[] {
+function isPlaylist(list: Playlist|TrackList): list is Playlist {
+  return (list as Playlist).tracks.items !== undefined;
+}
+
+export function getSpotifyTrackIds(list: Playlist|TrackList): string[] {
   if (isPlaylist(list)) {
     return getSpotifyTrackIdsFromPlaylist(list);
   }
   return getSpotifyTrackIdsFromTrackList(list);
 }
 
-export function getSpotifyTrackIdsFromPlaylist(
-  playlist: RawPlaylist,
-): string[] {
+export function getSpotifyTrackIdsFromPlaylist(playlist: Playlist): string[] {
   return getSpotifyTrackIdsFromTrackList(playlist.tracks.items);
 }
 
-export function getSpotifyTrackIdsFromTrackList(
-  trackList: TrackList,
-): string[] {
-  return trackList
-    .map((trackObject) => trackObject.track.id)
-    .filter((id) => id) as string[];
+export function getSpotifyTrackIdsFromTrackList(trackList: TrackList): string[] {
+  // return trackList
+  //   .map((trackObject) => trackObject.track.id)
+  //   .filter((id) => id);
 }
 
 /**
  * Cleans up playlists from the Spotify API, including removal of falsey ID
  * values (which can be due to local tracks).
  */
-export function rectifyPlaylistTracks(playlist: RawPlaylist): CleanPlaylist {
-  const items = playlist.tracks.items.map((track): CleanTrack => {
+export function rectifyPlaylistTracks(playlist: Playlist): Playlist {
+  const items = playlist.tracks.items.map((track) => {
     if (track.id) {
-      return track as CleanTrack;
+      return track;
     }
     return {
       ...track,
       id: track.uri,
-    } as CleanTrack;
+    };
   });
   return {
     ...playlist,
