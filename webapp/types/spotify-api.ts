@@ -19,7 +19,7 @@ export interface PlaylistObject {
   description: string;
   id: string;
   name: string;
-  tracks: PlaylistTrackObject[];
+  tracks: PagingObject<PlaylistTrackObject>;
 
   [key: string]: unknown;
 }
@@ -27,9 +27,9 @@ export interface PlaylistObject {
 // https://developer.spotify.com/documentation/web-api/reference/#object-playlisttrackobject
 export interface PlaylistTrackObject {
   added_at: string; // timestamp
+  added_by: PublicUserObject;
+  is_local: boolean;
   track: TrackObject;
-
-  [key: string]: unknown;
 }
 
 // https://developer.spotify.com/documentation/web-api/reference/#object-playlisttracksrefobject
