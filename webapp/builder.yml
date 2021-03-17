@@ -6,8 +6,8 @@ services:
       - 3128:3000
       - "5555:5555"
     volumes:
-      - .:/webapp
-    working_dir: /webapp
+      - ..:/electric-lounge
+    working_dir: /electric-lounge/webapp
     networks:
       - app-network
     environment:
