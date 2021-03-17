@@ -46,7 +46,7 @@ model PlaylistTrack {
 
 model Track {
   id            Int             @id @default(autoincrement())
-  spotifyId     String          @unique
+  spotifyId     String          @unique // spotifyID is `uri` for local tracks
   name          String
   PlaylistTrack PlaylistTrack[]
   createdAt     DateTime        @default(now())

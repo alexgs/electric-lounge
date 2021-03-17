@@ -7,6 +7,15 @@ export interface ArrayObject<Item> {
   items: Item[];
 }
 
+export interface LocalTrackObject {
+  id: null;
+  is_local: true;
+  name: string;
+  uri: string;
+
+  [key: string]: unknown;
+}
+
 // https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject
 export interface PagingObject<Item> {
   href: string;
@@ -61,12 +70,14 @@ export interface SimplifiedPlaylistObject {
   [key: string]: unknown;
 }
 
-// https://developer.spotify.com/documentation/web-api/reference/#object-trackobject
-export interface TrackObject {
-  id: string | null;
-  is_local?: boolean;
+export interface SpotifyTrackObject {
+  id: string;
   name: string;
-  uri: string;
 
   [key: string]: unknown;
 }
+
+// https://developer.spotify.com/documentation/web-api/reference/#object-trackobject
+export type TrackObject = LocalTrackObject | SpotifyTrackObject;
+
+export type TrackWrapper = PlaylistTrackObject;

@@ -7,10 +7,10 @@ import { Spotify } from 'types';
 
 type Playlist = Spotify.PlaylistObject;
 type Track = Spotify.TrackObject;
-type TrackList = Spotify.PlaylistTrackObject[];
+type WrapperList = Spotify.TrackWrapper[];
 
-function cleanId(track: Track) {
-  if (track.is_local) {
+export function cleanId(track: Track): Spotify.SpotifyTrackObject {
+  if (isLocalTrack(track)) {
     return {
       ...track,
       id: track.uri,
@@ -19,25 +19,35 @@ function cleanId(track: Track) {
   return track;
 }
 
-function isPlaylist(list: Playlist|TrackList): list is Playlist {
+function isLocalTrack(track: Track): track is Spotify.LocalTrackObject {
+  return (track as Spotify.LocalTrackObject).is_local;
+}
+
+function isPlaylist(list: Playlist|WrapperList): list is Playlist {
   return (list as Playlist).tracks.items !== undefined;
 }
 
-export function getSpotifyTrackIds(list: Playlist|TrackList): string[] {
+export function getSpotifyTrackIds(list: Playlist|WrapperList): string[] {
   if (isPlaylist(list)) {
     return getSpotifyTrackIdsFromPlaylist(list);
   }
-  return getSpotifyTrackIdsFromTrackList(list);
+  return getSpotifyTrackIdsFromWrapperList(list);
 }
 
 export function getSpotifyTrackIdsFromPlaylist(playlist: Playlist): string[] {
-  return getSpotifyTrackIdsFromTrackList(playlist.tracks.items);
+  return getSpotifyTrackIdsFromWrapperList(playlist.tracks.items);
 }
 
-export function getSpotifyTrackIdsFromTrackList(trackList: TrackList): string[] {
-  // return trackList
-  //   .map((trackObject) => trackObject.track.id)
-  //   .filter((id) => id);
+export function getSpotifyTrackIdsFromWrapperList(trackWrappers: WrapperList): string[] {
+  return trackWrappers
+    .map((trackObject) => trackObject.track.id)
+    .filter((id) => id) as string[];
+}
+
+export function getTrackIds(trackWrappers: WrapperList): string[] {
+  return trackWrappers
+    .map((wrapper) => cleanId(wrapper.track))
+    .map((track) => track.id);
 }
 
 /**
@@ -45,13 +55,10 @@ export function getSpotifyTrackIdsFromTrackList(trackList: TrackList): string[] 
  * values (which can be due to local tracks).
  */
 export function rectifyPlaylistTracks(playlist: Playlist): Playlist {
-  const items = playlist.tracks.items.map((track) => {
-    if (track.id) {
-      return track;
-    }
+  const items = playlist.tracks.items.map((wrapper) => {
     return {
-      ...track,
-      id: track.uri,
+      ...wrapper,
+      track: cleanId(wrapper.track),
     };
   });
   return {

@@ -10,7 +10,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
 
 import {
-  getSpotifyTrackIds,
+  cleanId,
+  getSpotifyTrackIds, getTrackIds,
   prisma,
   rectifyPlaylistTracks,
   spotifyUrl,
@@ -46,10 +47,10 @@ const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
 // }
 
 async function updateDbTracks(
-  spotifyPlaylistTracks: Spotify.PlaylistTrackObject[],
+  trackWrappers: Spotify.TrackWrapper[],
 ) {
   console.log(`  --> Step A <--`);
-  const incomingSpotifyTrackIds = getSpotifyTrackIds(spotifyPlaylistTracks);
+  const incomingSpotifyTrackIds = getTrackIds(trackWrappers);
   console.log(`  --> Step B <--`);
   // console.log(incomingSpotifyTrackIds);
   const existingDbTracks = await prisma.track.findMany({
@@ -73,15 +74,16 @@ async function updateDbTracks(
     // }
     const spotifyTrackId = newSpotifyTrackIds[i];
     // console.log(`     -+- Spotify track ID: ${spotifyTrackId} -+-`);
-    const trackData = spotifyPlaylistTracks.find(
-      (trackObject) => trackObject.track.id === spotifyTrackId,
+    const trackData = trackWrappers.find(
+      (wrapper) => wrapper.track.id === spotifyTrackId,
     );
     // console.log(`     -+- track data: ${trackData} -+-`);
     if (trackData) {
+      const payload = cleanId(trackData.track);
       await prisma.track.create({
         data: {
-          spotifyId: trackData.track.id,
-          name: trackData.track.name,
+          spotifyId: payload.id,
+          name: payload.name,
         },
       });
     } else {
