@@ -23,7 +23,8 @@
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "start": "next start",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watchAll"
   },
   "dependencies": {
     "@babel/core": "^7.12.10",
@@ -39,6 +40,7 @@
     "env-var": "^7.0.0",
     "form-urlencoded": "^4.2.1",
     "got": "^11.8.2",
+    "lodash-es": "^4.17.21",
     "luxon": "^1.26.0",
     "next": "10.0.x",
     "next-auth": "^3.5.1",
@@ -51,6 +53,7 @@
     "@emotion/babel-plugin": "^11.2.0",
     "@types/form-urlencoded": "^2.0.1",
     "@types/jest": "^26.0.0",
+    "@types/lodash": "^4.14.168",
     "@types/luxon": "^1.26.1",
     "@types/node": "^14.14.20",
     "@types/react": "^17.0.0",
