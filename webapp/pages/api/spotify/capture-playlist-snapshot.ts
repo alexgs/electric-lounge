@@ -47,7 +47,7 @@ async function handler(
     const playlist = JSON.parse(playlistResponse.body) as Playlist;
     response.status(200).json({ ...playlist });
 
-    // TODO Save it into the database
+    // TODO Save it into the database using functions from the `wip/2` branch
   } catch (error) {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
     response.status(500).json({

@@ -64,3 +64,5 @@ export interface TrackObject {
 
   [key: string]: unknown;
 }
+
+export type TrackWrapper = PlaylistTrackObject;
