@@ -11,7 +11,8 @@ import { getSession } from 'next-auth/client';
 
 import {
   cleanId,
-  getSpotifyTrackIds, getTrackIds,
+  getSpotifyTrackIds,
+  getTrackIds,
   prisma,
   rectifyPlaylistTracks,
   spotifyUrl,
@@ -46,28 +47,23 @@ const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
 //   }
 // }
 
-async function updateDbTracks(
+async function getNewSpotifyIds(
   trackWrappers: Spotify.TrackWrapper[],
-) {
-  console.log(`  --> Step A <--`);
+): Promise<string[]> {
   const incomingSpotifyTrackIds = getTrackIds(trackWrappers);
-  console.log(`  --> Step B <--`);
-  // console.log(incomingSpotifyTrackIds);
   const existingDbTracks = await prisma.track.findMany({
     where: {
       spotifyId: { in: incomingSpotifyTrackIds },
     },
   });
-  console.log(`  --> Step C <--`);
   const existingSpotifyTrackIds = existingDbTracks.map(
     (track) => track.spotifyId,
   );
-  console.log(`  --> Step D <--`);
-  const newSpotifyTrackIds = _.difference(
-    incomingSpotifyTrackIds,
-    existingSpotifyTrackIds,
-  );
-  console.log(`  --> Step E <--`);
+  return _.difference(incomingSpotifyTrackIds, existingSpotifyTrackIds);
+}
+
+async function updateDbTracks(trackWrappers: Spotify.TrackWrapper[]) {
+  const newSpotifyTrackIds = await getNewSpotifyIds(trackWrappers);
   for (let i = 0; i < newSpotifyTrackIds.length; i++) {
     // if (i > 0) {
     //   return;
@@ -142,7 +138,6 @@ async function handler(
       },
     });
     console.log(`--> Step 2 <--`);
-
   } catch (error) {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
     if (error.response) {
