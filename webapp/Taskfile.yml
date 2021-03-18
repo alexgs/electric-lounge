@@ -1,10 +1,22 @@
 version: '3'
 
+dotenv: ['../.env']
+
 vars:
   ENV_FILE: ../.env
   COMPOSE: docker-compose --env-file {{.ENV_FILE}} -f builder.yml -f ../docker-compose.yml
+  DOCKER_IMAGE: electric-lounge
+  VERSION:
+    sh: jq -r .version ./package.json
 
 tasks:
+  docker:
+    cmds:
+      - task: docker-build
+      - task: docker-push-version
+      - task: docker-push-latest
+    desc: Build Docker image and push to the public repository
+
   fix-owner:
     cmds:
       - sudo chown -R alexgs:alexgs ./node_modules/@types
@@ -36,3 +48,30 @@ tasks:
     cmds:
       - "{{.COMPOSE}} run --rm --service-ports studio"
     desc: Launch Prisma Studio
+
+  version-major:
+    cmds:
+      - npm version major
+    desc: Increment major version number
+
+  version-minor:
+    cmds:
+      - npm version minor
+    desc: Increment minor version number
+
+  version-patch:
+    cmds:
+      - npm version patch
+    desc: Increment patch version number
+
+  docker-build:
+    cmds:
+      - docker build --build-arg FONTAWESOME_NPM_AUTH_TOKEN -t alexgs99/{{.DOCKER_IMAGE}}:latest -t alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}} .
+
+  docker-push-latest:
+    cmds:
+      - docker push alexgs99/{{.DOCKER_IMAGE}}:latest
+
+  docker-push-version:
+    cmds:
+    - docker push alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}}
