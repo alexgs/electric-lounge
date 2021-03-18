@@ -6,7 +6,12 @@ import { Spotify } from 'types';
 
 import prisma from '../prisma';
 
-import { getNewSpotifyIds, getTrackIds, smokeTest } from './index';
+import {
+  getNewSpotifyIds,
+  getTrackIds,
+  insertSpotifyTracks,
+  smokeTest,
+} from './index';
 
 type WrapperList = Spotify.TrackWrapper[];
 
@@ -145,5 +150,27 @@ describe('Function `getNewSpotifyIds`', () => {
     const result = await getNewSpotifyIds([song1, song2]);
     const expected = [song1.track.id];
     expect(result).toEqual(expected);
+  });
+});
+
+describe('Function `insertSpotifyTracks`', () => {
+  it('[SIDE EFFECT] calls `prisma.track.create`', async () => {
+    await insertSpotifyTracks([song1, song2], [song1.track.id]);
+
+    /* eslint-disable @typescript-eslint/unbound-method */
+    expect(prisma.track.create as jest.Mock).toHaveBeenCalledTimes(1);
+    expect(prisma.track.create as jest.Mock).toHaveBeenCalledWith({
+      data: {
+        isLocal: false,
+        name: 'Song 1',
+        spotifyId: '7p2T6ivlXN6n79DBfg8Lrv',
+      },
+    });
+    /* eslint-enable @typescript-eslint/unbound-method */
+  });
+
+  it('returns the number of records added to the database', async () => {
+    const result = await insertSpotifyTracks([song1, song2], [song1.track.id]);
+    expect(result).toEqual(1);
   });
 });

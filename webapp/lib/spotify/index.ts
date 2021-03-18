@@ -3,6 +3,7 @@
  * the Open Software License version 3.0.
  */
 
+import { Prisma } from '@prisma/client';
 import * as _ from 'lodash';
 
 import { Spotify } from 'types';
@@ -46,4 +47,37 @@ export async function getNewSpotifyIds(
     (track) => track.spotifyId,
   );
   return _.difference(incomingSpotifyTrackIds, existingSpotifyTrackIds);
+}
+
+export async function insertSpotifyTracks(wrappers: WrapperList, ids: string[]): Promise<number> {
+  let count = 0;
+  for (const spotifyTrackId of ids) {
+    const trackData = wrappers.find(
+      (wrapper) => wrapper.track.id === spotifyTrackId,
+    );
+    if (trackData) {
+      const id = getSpotifyId(trackData.track);
+      const payload: Prisma.TrackCreateInput = {
+        isLocal: trackData.is_local,
+        spotifyId: id,
+        name: trackData.track.name,
+      };
+      await prisma.track.create({
+        data: payload,
+      });
+      count++;
+    } else {
+      console.error(
+        `>> Something bad happened trying to insert Spotify track ID "${spotifyTrackId}" <<`,
+      );
+    }
+  }
+  return Promise.resolve(count);
+}
+
+function getSpotifyId(track: Spotify.TrackObject): string {
+  if (track.id) {
+    return track.id;
+  }
+  return track.uri;
 }
