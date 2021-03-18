@@ -7,11 +7,17 @@ import * as _ from 'lodash';
 
 import { Spotify } from 'types';
 
+import prisma from '../prisma';
+
 type WrapperList = Spotify.TrackWrapper[];
 
 export function smokeTest(a: number, b: number): number {
   return a + b;
 }
+
+// TODO Consider moving all of the playlist stuff into a place like
+//   `lib/spotify-api/playlists`. There could be custom types defined in this
+//   place that derive from the API types in the `types` folder.
 
 export function getTrackIds(wrappers: WrapperList): string[] {
   const output: string[] = [];
@@ -27,3 +33,17 @@ export function getTrackIds(wrappers: WrapperList): string[] {
   return output;
 }
 
+export async function getNewSpotifyIds(
+  trackWrappers: Spotify.TrackWrapper[],
+): Promise<string[]> {
+  const incomingSpotifyTrackIds = getTrackIds(trackWrappers);
+  const existingDbTracks = await prisma.track.findMany({
+    where: {
+      spotifyId: { in: incomingSpotifyTrackIds },
+    },
+  });
+  const existingSpotifyTrackIds = existingDbTracks.map(
+    (track) => track.spotifyId,
+  );
+  return _.difference(incomingSpotifyTrackIds, existingSpotifyTrackIds);
+}

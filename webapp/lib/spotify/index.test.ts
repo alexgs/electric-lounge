@@ -1,6 +1,12 @@
+jest.mock('../prisma');
+
+import { Track } from '@prisma/client';
+
 import { Spotify } from 'types';
 
-import { getTrackIds, smokeTest } from './index';
+import prisma from '../prisma';
+
+import { getNewSpotifyIds, getTrackIds, smokeTest } from './index';
 
 type WrapperList = Spotify.TrackWrapper[];
 
@@ -22,6 +28,7 @@ const song1: Spotify.TrackWrapper = {
   track: {
     name: 'Song 1',
     id: '7p2T6ivlXN6n79DBfg8Lrv',
+    uri: 'fake:track:7p2T6ivlXN6n79DBfg8Lrv',
   },
 };
 
@@ -32,6 +39,7 @@ const song2: Spotify.TrackWrapper = {
   track: {
     name: 'Song 2',
     id: '1fxm2w6M69YuCWrVFPHoQB',
+    uri: 'fake:track:1fxm2w6M69YuCWrVFPHoQB',
   },
 };
 
@@ -42,6 +50,7 @@ const song3: Spotify.TrackWrapper = {
   track: {
     name: 'Song Free',
     id: '2MycpboRozeeoFNqWGrnak',
+    uri: 'fake:track:2MycpboRozeeoFNqWGrnak',
   },
 };
 
@@ -117,5 +126,24 @@ describe('Function `getTrackIds`', () => {
     ];
 
     expect(getTrackIds(sampleData)).toEqual(expectedOutput);
+  });
+});
+
+describe('Function `getNewSpotifyIds`', () => {
+  it('returns Spotify IDs for tracks not in the database', async () => {
+    const timestamp = new Date();
+    const song2Track: Track = {
+      id: 99,
+      spotifyId: song2.track.id,
+      name: song2.track.name,
+      isLocal: false,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+    (prisma.track.findMany as jest.Mock).mockResolvedValue([song2Track]);
+
+    const result = await getNewSpotifyIds([song1, song2]);
+    const expected = [song1.track.id];
+    expect(result).toEqual(expected);
   });
 });

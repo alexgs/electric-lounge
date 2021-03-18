@@ -61,6 +61,7 @@ export interface SimplifiedPlaylistObject {
 export interface TrackObject {
   id: string;
   name: string;
+  uri: string;
 
   [key: string]: unknown;
 }
