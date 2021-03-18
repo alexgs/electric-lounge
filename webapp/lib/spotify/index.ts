@@ -49,28 +49,19 @@ export async function getNewSpotifyIds(
   return _.difference(incomingSpotifyTrackIds, existingSpotifyTrackIds);
 }
 
-export async function insertSpotifyTracks(wrappers: WrapperList, ids: string[]): Promise<number> {
+export async function insertSpotifyTracks(wrappers: WrapperList): Promise<number> {
   let count = 0;
-  for (const spotifyTrackId of ids) {
-    const trackData = wrappers.find(
-      (wrapper) => wrapper.track.id === spotifyTrackId,
-    );
-    if (trackData) {
-      const id = getSpotifyId(trackData.track);
-      const payload: Prisma.TrackCreateInput = {
-        isLocal: trackData.is_local,
-        spotifyId: id,
-        name: trackData.track.name,
-      };
-      await prisma.track.create({
-        data: payload,
-      });
-      count++;
-    } else {
-      console.error(
-        `>> Something bad happened trying to insert Spotify track ID "${spotifyTrackId}" <<`,
-      );
-    }
+  for (const trackData of wrappers) {
+    const id = getSpotifyId(trackData.track);
+    const payload: Prisma.TrackCreateInput = {
+      isLocal: trackData.is_local,
+      spotifyId: id,
+      name: trackData.track.name,
+    };
+    await prisma.track.create({
+      data: payload,
+    });
+    count++;
   }
   return Promise.resolve(count);
 }

@@ -155,7 +155,7 @@ describe('Function `getNewSpotifyIds`', () => {
 
 describe('Function `insertSpotifyTracks`', () => {
   it('[SIDE EFFECT] calls `prisma.track.create`', async () => {
-    await insertSpotifyTracks([song1, song2], [song1.track.id]);
+    await insertSpotifyTracks([song1]);
 
     /* eslint-disable @typescript-eslint/unbound-method */
     expect(prisma.track.create as jest.Mock).toHaveBeenCalledTimes(1);
@@ -170,7 +170,7 @@ describe('Function `insertSpotifyTracks`', () => {
   });
 
   it('returns the number of records added to the database', async () => {
-    const result = await insertSpotifyTracks([song1, song2], [song1.track.id]);
+    const result = await insertSpotifyTracks([song1]);
     expect(result).toEqual(1);
   });
 });
