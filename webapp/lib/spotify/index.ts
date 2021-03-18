@@ -66,7 +66,7 @@ export async function insertSpotifyTracks(wrappers: WrapperList): Promise<number
   return Promise.resolve(count);
 }
 
-function getSpotifyId(track: Spotify.TrackObject): string {
+export function getSpotifyId(track: Spotify.TrackObject): string {
   if (track.id) {
     return track.id;
   }

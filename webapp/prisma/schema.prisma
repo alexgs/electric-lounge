@@ -36,6 +36,7 @@ model PlaylistSnapshot {
 model PlaylistTrack {
   id         Int              @id @default(autoincrement())
   addedAt    DateTime
+  position   Int
   track      Track            @relation(fields: [trackId], references: [id])
   trackId    Int
   snapshot   PlaylistSnapshot @relation(fields: [snapshotId], references: [id])
