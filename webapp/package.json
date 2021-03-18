@@ -1,7 +1,7 @@
 {
   "name": "electric-lounge",
-  "version": "0.0.1",
-  "description": "A Spotify thingy",
+  "version": "0.1.0",
+  "description": "A library manager for Spotify",
   "author": {
     "email": "alex.nebula99@gmail.com",
     "name": "Alex Gates-Shannon"
