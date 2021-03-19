@@ -19,7 +19,7 @@ tasks:
       - task: initialize-1-start-container
       - task: initialize-2-sleep
       - task: initialize-3-stop-container
-      - echo "Initialize complete."
+      - echo "Initialization complete."
     desc: Initialize the __host__ Postgres data directory
 
   node:

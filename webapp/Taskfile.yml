@@ -10,7 +10,7 @@ vars:
     sh: jq -r .version ./package.json
 
 tasks:
-  docker:
+  build:
     cmds:
       - task: docker-build
       - task: docker-push-version
@@ -33,10 +33,10 @@ tasks:
       - "{{.COMPOSE}} run --rm install"
     desc: Install dependencies
 
-  node:
-    cmds:
-      - "{{.COMPOSE}} run --service-ports --rm base zsh"
-    desc: Open a shell for running node & npm commands in a container
+#  node:
+#    cmds:
+#      - "{{.COMPOSE}} run --service-ports --rm base zsh"
+#    desc: Open a shell for running node & npm commands in a container
 
   studio:
     cmds:
