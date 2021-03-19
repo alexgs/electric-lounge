@@ -3,7 +3,7 @@ services:
     image: alexgs99/node:latest
     user: node
     ports:
-      - 3128:3000
+      - "3128:3000"
       - "5555:5555"
     volumes:
       - ..:/electric-lounge

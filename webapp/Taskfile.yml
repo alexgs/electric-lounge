@@ -15,7 +15,7 @@ tasks:
       - task: docker-build
       - task: docker-push-version
       - task: docker-push-latest
-    desc: Build Docker image and push to the public repository
+    desc: Build production Docker image and push to the public repository
 
   fix-owner:
     cmds:
@@ -32,12 +32,6 @@ tasks:
     cmds:
       - "{{.COMPOSE}} run --rm install"
     desc: Install dependencies
-
-  # Just run the generators without fixing file permissions; intended for use
-  #   by file watcher and other scripts.
-  just-gen:
-    cmds:
-      - "{{.COMPOSE}} run --rm gen"
 
   node:
     cmds:
@@ -64,14 +58,17 @@ tasks:
       - npm version patch
     desc: Increment patch version number
 
-  docker-build:
-    cmds:
-      - docker build --build-arg FONTAWESOME_NPM_AUTH_TOKEN -t alexgs99/{{.DOCKER_IMAGE}}:latest -t alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}} .
+  # --- PRIVATE COMMANDS ---
 
-  docker-push-latest:
-    cmds:
-      - docker push alexgs99/{{.DOCKER_IMAGE}}:latest
+  docker-build: docker build --build-arg FONTAWESOME_NPM_AUTH_TOKEN
+    -t alexgs99/{{.DOCKER_IMAGE}}:latest
+    -t alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}} .
 
-  docker-push-version:
-    cmds:
-    - docker push alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}}
+  docker-push-latest: docker push alexgs99/{{.DOCKER_IMAGE}}:latest
+
+  docker-push-version: docker push alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}}
+
+  # Just run the generators without fixing file permissions; intended for use
+  #   by file watcher and other scripts.
+  just-gen: "{{.COMPOSE}} run --rm gen"
+

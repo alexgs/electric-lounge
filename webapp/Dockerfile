@@ -12,6 +12,7 @@ RUN npm ci
 
 COPY --chown=node:node . .
 RUN npx prisma generate
+RUN npm run build
 
-EXPOSE 8080
+EXPOSE 3000
 CMD [ "npm", "start" ]
