@@ -11,9 +11,9 @@ vars:
 tasks:
   build:
     cmds:
-      - task: docker-build
-      - task: docker-push-version
-      - task: docker-push-latest
+      - task: private:docker:build
+      - task: private:docker:push-version
+      - task: private:docker:push-latest
     desc: Build production Docker image and push to the public repository
 
 #  fix-owner:
@@ -26,27 +26,27 @@ tasks:
       - docker exec -it webapp zsh
     desc: Open a shell for running node & npm commands in a container
 
-  version-major:
+  version:major:
     cmds:
       - "{{.NPM_PATH}} version major"
     desc: Increment major version number
 
-  version-minor:
+  version:minor:
     cmds:
       - "{{.NPM_PATH}} version minor"
     desc: Increment minor version number
 
-  version-patch:
+  version:patch:
     cmds:
       - "{{.NPM_PATH}} version patch"
     desc: Increment patch version number
 
   # --- PRIVATE COMMANDS ---
 
-  docker-build: docker build --build-arg FONTAWESOME_NPM_AUTH_TOKEN
+  private:docker:build: docker build --build-arg FONTAWESOME_NPM_AUTH_TOKEN
     -t alexgs99/{{.DOCKER_IMAGE}}:latest
     -t alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}} .
 
-  docker-push-latest: docker push alexgs99/{{.DOCKER_IMAGE}}:latest
+  private:docker:push-latest: docker push alexgs99/{{.DOCKER_IMAGE}}:latest
 
-  docker-push-version: docker push alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}}
+  private:docker:push-version: docker push alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}}
