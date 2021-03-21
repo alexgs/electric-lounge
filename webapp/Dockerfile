@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM node:14-alpine
 
 ARG FONTAWESOME_NPM_AUTH_TOKEN
 

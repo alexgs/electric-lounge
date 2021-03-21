@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../devops/.idea/devops.iml" filepath="$PROJECT_DIR$/../devops/.idea/devops.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/electric-lounge.iml" filepath="$PROJECT_DIR$/.idea/electric-lounge.iml" />
     </modules>
   </component>
