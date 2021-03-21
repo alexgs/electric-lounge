@@ -1,4 +1,4 @@
-# --- JetBrains IDEs: Android Studio, Webstorm, etc. ---
+# --- JETBRAINS ---
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff:
@@ -13,7 +13,6 @@
 **/.idea/sqlDataSources.xml
 **/.idea/dynamic.xml
 **/.idea/uiDesigner.xml
-
 
 # --- NEXT.JS ---
 
@@ -30,7 +29,6 @@
 
 # production
 **/build
-
 
 # --- PROJECT ---
 
@@ -49,5 +47,4 @@
 *.key
 *.pem
 *.pgsql
-*.sql
 *.tar.gz
