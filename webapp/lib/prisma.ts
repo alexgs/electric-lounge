@@ -12,17 +12,21 @@ declare global {
   /* eslint-enable no-var */
 }
 
-// check to use this workaround only in development and not in production
-if (process.env.NODE_ENV === 'production') {
-  prisma = new PrismaClient();
-} else {
-  // PrismaClient is attached to the `global` object in development to prevent
-  //   exhausting the database connection limit. [Reference][1]
-  // [1]: https://pris.ly/d/help/next-js-best-practices
-  if (!global.prisma) {
-    global.prisma = new PrismaClient();
+function getPrismaClient(): PrismaClient {
+  // Check to use this workaround only in dev/testing and not in production
+  if (process.env.NODE_ENV === 'production') {
+    return new PrismaClient();
+  } else {
+    // PrismaClient is attached to the `global` object in development to prevent
+    //   exhausting the database connection limit. [Reference][1]
+    // [1]: https://pris.ly/d/help/next-js-best-practices
+    if (!global.prisma) {
+      global.prisma = new PrismaClient();
+    }
+    return global.prisma;
   }
-  prisma = global.prisma;
 }
+
+const prisma = getPrismaClient();
 
 export default prisma;

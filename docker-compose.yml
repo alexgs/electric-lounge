@@ -13,14 +13,15 @@ services:
       - app-network
 
   webapp:
-    image: node:12
+    image: alexgs99/node:2
     container_name: webapp
     restart: unless-stopped
     ports:
       - "3000:3000"
+      - "5555:5555"
     volumes:
-      - ./webapp:/webapp
-    working_dir: /webapp
+      - .:/electric-lounge
+    working_dir: /electric-lounge/webapp
     networks:
       - app-network
     environment:

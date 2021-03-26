@@ -1,38 +1,52 @@
 version: '3'
 
+dotenv: ['../.env']
+
 vars:
-  ENV_FILE: ../.env
-  COMPOSE: docker-compose --env-file {{.ENV_FILE}} -f builder.yml -f ../docker-compose.yml
+  DOCKER_IMAGE: electric-lounge
+  NPM_PATH: /usr/bin/npm
+  VERSION:
+    sh: jq -r .version ./package.json
 
 tasks:
-  fix-owner:
+  build:
     cmds:
-      - sudo chown -R alexgs:alexgs ./node_modules/@types
-    desc: Fix file owners for `node_modules/@types`
+      - task: private:docker:build
+      - task: private:docker:push-version
+      - task: private:docker:push-latest
+    desc: Build production Docker image and push to the public repository
 
-  gen:
-    cmds:
-      - task: fix-owner
-      - task: just-gen
-    desc: Generate the Nexus and Prisma things
-
-  install:
-    cmds:
-      - "{{.COMPOSE}} run --rm install"
-    desc: Install dependencies
-
-  # Just run the generators without fixing file permissions; intended for use
-  #   by file watcher and other scripts.
-  just-gen:
-    cmds:
-      - "{{.COMPOSE}} run --rm gen"
+#  fix-owner:
+#    cmds:
+#      - sudo chown -R alexgs:alexgs ./node_modules/@types
+#    desc: Fix file owners for `node_modules/@types`
 
   node:
     cmds:
-      - "{{.COMPOSE}} run --service-ports --rm base zsh"
+      - docker exec -it webapp zsh
     desc: Open a shell for running node & npm commands in a container
 
-  studio:
+  version:major:
     cmds:
-      - "{{.COMPOSE}} run --rm --service-ports studio"
-    desc: Launch Prisma Studio
+      - "{{.NPM_PATH}} version major"
+    desc: Increment major version number
+
+  version:minor:
+    cmds:
+      - "{{.NPM_PATH}} version minor"
+    desc: Increment minor version number
+
+  version:patch:
+    cmds:
+      - "{{.NPM_PATH}} version patch"
+    desc: Increment patch version number
+
+  # --- PRIVATE COMMANDS ---
+
+  private:docker:build: docker build --build-arg FONTAWESOME_NPM_AUTH_TOKEN
+    -t alexgs99/{{.DOCKER_IMAGE}}:latest
+    -t alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}} .
+
+  private:docker:push-latest: docker push alexgs99/{{.DOCKER_IMAGE}}:latest
+
+  private:docker:push-version: docker push alexgs99/{{.DOCKER_IMAGE}}:{{.VERSION}}

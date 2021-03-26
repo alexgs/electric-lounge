@@ -13,7 +13,7 @@ You'll need [Task][1] to do anything. You can run `task --list` to see other com
 1. To connect from a Node.js scripting container, first do `task node` to start and get a shell on the scripting container. (Warnings about missing variables can safely be ignored.)
 1. From the container, you can do `psql -h database -U $API_DATABASE_USER -d $API_DATABASE_NAME`. You will be prompted for the `$API_DATABASE_PASSWORD`.
 
-## Getting Started
+## Getting started in development
 
 :boom: **WARNING** :boom: PostreSQL is weird about case sensitivity. The best solution is to use lower case for all database and role names. If you insist on using upper case, you _must_ wrap database and role names in double quotes.
 
@@ -50,6 +50,12 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $API_DATABASE_U
 7. Use `\q` to exit the client.
 1. Run `rm ~/.psql_history` to clear the client history (which contains the `$API_DATABASE_PASSWORD`).
 1. Use `pg_restore` or other tools to add data to the database.
+
+## Getting started in production
+
+1. Connect to the database cluster as an admin user and run `CREATE DATABASE $API_DATABASE_NAME;` to create the database.
+1. Connect to the database with `\connect $API_DATABASE_NAME`.
+1. Run the queries in from above to create the database user and set permissions. You should also do `REVOKE ALL` for the new user for each existing database and for each existing user on the new database.
 
 ## References
 
