@@ -5,30 +5,38 @@
 
 import * as childProcess from 'child_process';
 import * as env from 'env-var';
+import * as path from 'path';
 import pino from 'pino';
 import * as stream from 'stream';
 
 // This file needs to be compiled with `esModuleInterop`, like this:
 // npx tsc --esModuleInterop scripts/capture-playlist-snapshot.ts
 
+const SCRIPT_NAME= 'capture-playlist-snapshot';
 const LOG_PATH = env.get('LOG_PATH').default(process.cwd()).asString();
+const LOG_FILENAME = env.get('LOG_FILENAME').default(`${SCRIPT_NAME}.log`).asString();
 
-// TODO Wire-up `tee` to capture console output, using the example from the `pino-tee` documentation
 async function main() {
-  const logThrough = new stream.PassThrough();
-  const log = pino({ name: 'capture-playlist-snapshot' }, logThrough) ;
-  const child = childProcess.spawn('tee', [`-a`, `log.txt`], {
+  const logStream = new stream.PassThrough();
+  const logger = pino({ name: SCRIPT_NAME }, logStream);
+
+  const logFile = path.resolve(LOG_PATH, LOG_FILENAME);
+  const tee = childProcess.spawn('tee', [`-a`, logFile], {
     cwd: process.cwd(),
     env: process.env,
   });
-  logThrough.pipe(child.stdin);
+  const waitOnTeeExit = new Promise(resolve => {
+    tee.on('exit', (code) => {
+      resolve(code ?? 0);
+    });
+  });
+
+  logStream.pipe(tee.stdin);
 
   const now = new Date();
-  log.info(`The current time is ${now.toISOString()}`);
-  child.kill('SIGTERM');
-  return new Promise((resolve) => {
-    setTimeout(() => resolve({ exitCode: 0 }), 1000);
-  });
+  logger.info(`The current time is ${now.toISOString()}`);
+  tee.kill('SIGTERM');
+  return waitOnTeeExit;
 }
 
 main().catch((error) => {
