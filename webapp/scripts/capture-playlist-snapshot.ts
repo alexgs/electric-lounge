@@ -43,6 +43,8 @@ function getLogger(
   // Connect the Pino logger to the child `tee` process
   logStream.pipe(tee.stdin);
 
+  // TODO Pipe child.stdout to this process's stdout
+
   // Function to close the child process when we're done logging
   async function close() {
     tee.kill('SIGTERM');
@@ -55,9 +57,14 @@ function getLogger(
 async function main() {
   const logFile = path.resolve(LOG_PATH, LOG_FILENAME);
   const [logger, closeLogger] = getLogger(SCRIPT_NAME, logFile);
+
+  logger.trace(`Script "${SCRIPT_NAME}" starting.`);
   const now = new Date();
   logger.info(`The current time is ${now.toISOString()}`);
-  await closeLogger();
+  logger.trace(`Script "${SCRIPT_NAME}" finished.`);
+
+  const teeCode = await closeLogger();
+  console.log(`[${SCRIPT_NAME}] Child log-writer exited with code ${teeCode}.`);
 }
 
 main().catch((error) => {
