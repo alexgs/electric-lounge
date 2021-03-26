@@ -12,31 +12,52 @@ import * as stream from 'stream';
 // This file needs to be compiled with `esModuleInterop`, like this:
 // npx tsc --esModuleInterop scripts/capture-playlist-snapshot.ts
 
-const SCRIPT_NAME= 'capture-playlist-snapshot';
+const SCRIPT_NAME = 'capture-playlist-snapshot';
 const LOG_PATH = env.get('LOG_PATH').default(process.cwd()).asString();
-const LOG_FILENAME = env.get('LOG_FILENAME').default(`${SCRIPT_NAME}.log`).asString();
+const LOG_FILENAME = env
+  .get('LOG_FILENAME')
+  .default(`${SCRIPT_NAME}.log`)
+  .asString();
 
-async function main() {
+function getLogger(
+  name: string,
+  file: string,
+): [pino.Logger, () => Promise<number>] {
+  // Create a logger with Pino
   const logStream = new stream.PassThrough();
-  const logger = pino({ name: SCRIPT_NAME }, logStream);
+  const logger = pino({ name }, logStream);
 
-  const logFile = path.resolve(LOG_PATH, LOG_FILENAME);
-  const tee = childProcess.spawn('tee', [`-a`, logFile], {
+  // Spawn a separate process to handle writing events to a file, per Pino standard practices
+  const tee = childProcess.spawn('tee', [`-a`, file], {
     cwd: process.cwd(),
     env: process.env,
   });
-  const waitOnTeeExit = new Promise(resolve => {
+
+  // Create a Promise that resolves when the child `tee` process exits
+  const waitOnTeeExit: Promise<number> = new Promise((resolve) => {
     tee.on('exit', (code) => {
       resolve(code ?? 0);
     });
   });
 
+  // Connect the Pino logger to the child `tee` process
   logStream.pipe(tee.stdin);
 
+  // Function to close the child process when we're done logging
+  async function close() {
+    tee.kill('SIGTERM');
+    return waitOnTeeExit;
+  }
+
+  return [logger, close];
+}
+
+async function main() {
+  const logFile = path.resolve(LOG_PATH, LOG_FILENAME);
+  const [logger, closeLogger] = getLogger(SCRIPT_NAME, logFile);
   const now = new Date();
   logger.info(`The current time is ${now.toISOString()}`);
-  tee.kill('SIGTERM');
-  return waitOnTeeExit;
+  await closeLogger();
 }
 
 main().catch((error) => {
