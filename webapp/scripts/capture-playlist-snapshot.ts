@@ -10,14 +10,17 @@ import winston from 'winston';
 import { prisma } from '../lib';
 import { getValidAccessToken } from '../lib/spotify/oauth';
 
-const EL_USER_ID = 1;
-const EXIT_CODES = {
+const EXIT = {
   SUCCESS: 0,
-  UNCAUGHT: 1,
-  CREDENTIAL: 2,
-}
-const LOG_CRON_PATH = env.get('LOG_CRON_PATH').default(process.cwd()).asString();
-const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
+  ERROR: {
+    UNCAUGHT: 1,
+    CRED: 2,
+  },
+};
+const LOG_CRON_PATH = env
+  .get('LOG_CRON_PATH')
+  .default(process.cwd())
+  .asString();
 const SCRIPT_NAME = 'capture-playlist-snapshot';
 
 const LOG_FILE = path.resolve(LOG_CRON_PATH, `${SCRIPT_NAME}.log`);
@@ -27,56 +30,73 @@ const myFormat = (info: Record<string, string>) =>
   `[${info.timestamp}] ${info.script} ${info.level.toUpperCase()}: ` +
   info.message;
 
-async function main() {
-  const logger = winston.createLogger({
-    defaultMeta: { script: SCRIPT_NAME },
-    format: winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.errors({ stack: true }),
-      winston.format.json(),
-    ),
-    level: 'silly',
-    transports: [
-      new winston.transports.File({ filename: TRACE_FILE }),
-      new winston.transports.File({
-        filename: LOG_FILE,
-        level: 'info',
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.printf(myFormat),
-        ),
-      }),
-      new winston.transports.Console({
-        level: 'verbose',
-        format: winston.format.combine(
-          winston.format.timestamp(),
-          winston.format.printf(myFormat),
-        ),
-      }),
-    ],
-  });
+const logger = winston.createLogger({
+  defaultMeta: { script: SCRIPT_NAME },
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.json(),
+  ),
+  level: 'silly',
+  transports: [
+    new winston.transports.File({ filename: TRACE_FILE }),
+    new winston.transports.File({
+      filename: LOG_FILE,
+      level: 'info',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(myFormat),
+      ),
+    }),
+    new winston.transports.Console({
+      level: 'silly',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(myFormat),
+      ),
+    }),
+  ],
+});
 
-  logger.verbose(`Script \`${SCRIPT_NAME}\` starting.`);
-
+async function getSpotifyId(userId: number) {
   const idResult = await prisma.account.findFirst({
     where: {
-      userId: EL_USER_ID,
+      userId,
       providerId: 'spotify',
     },
   });
   if (!idResult) {
-    logger.error(`Unable to retrieve Spotify ID for user ID ${EL_USER_ID}.`);
-    process.exit(EXIT_CODES.CREDENTIAL);
+    throw new Error(`Unable to retrieve Spotify ID for user ID ${userId}.`);
   }
-  const spotifyId = idResult.providerAccountId;
+  return idResult.providerAccountId;
+}
 
-  const tokenResult = await getValidAccessToken(EL_USER_ID);
+async function getSpotifyToken(userId: number) {
+  const tokenResult = await getValidAccessToken(userId);
   if (!tokenResult?.accessToken) {
-    logger.error(`Unable to retrieve Spotify access token for user ID ${EL_USER_ID}.`);
-    process.exit(EXIT_CODES.CREDENTIAL);
+    throw new Error(
+      `Unable to retrieve Spotify access token for user ID ${userId}.`,
+    );
   }
-  const spotifyToken = tokenResult.accessToken;
+  return tokenResult.accessToken;
+}
 
+async function main() {
+  const EL_USER_ID = 1;
+  const MARCH_2021 = '2FIcB7cjbzbCY7QcOU3NO6';
+
+  logger.verbose(`Script \`${SCRIPT_NAME}\` starting.`);
+
+  const spotifyId = await getSpotifyId(EL_USER_ID).catch((error: Error) => {
+    logger.error(error.message);
+    process.exit(EXIT.ERROR.CRED);
+  });
+  const spotifyToken = await getSpotifyToken(EL_USER_ID).catch(
+    (error: Error) => {
+      logger.error(error.message);
+      process.exit(EXIT.ERROR.CRED);
+    },
+  );
   logger.debug(JSON.stringify({ spotifyId, spotifyToken }));
 
   logger.verbose(`Script \`${SCRIPT_NAME}\` finished.`);
@@ -84,9 +104,9 @@ async function main() {
 
 main()
   .then(() => {
-    process.exit(EXIT_CODES.SUCCESS);
+    process.exit(EXIT.SUCCESS);
   })
   .catch((error) => {
     console.log(error);
-    process.exit(EXIT_CODES.UNCAUGHT);
+    process.exit(EXIT.ERROR.UNCAUGHT);
   });
