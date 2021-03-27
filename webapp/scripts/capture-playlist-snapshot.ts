@@ -9,6 +9,11 @@ import path from 'path';
 import winston from 'winston';
 
 import { prisma, spotifyUrl } from 'lib';
+import {
+  getNewSpotifyIds,
+  getSpotifyId,
+  insertSpotifyTracks,
+} from 'lib/spotify';
 import { getValidAccessToken } from 'lib/spotify/oauth';
 import { Spotify } from 'types';
 
@@ -53,7 +58,7 @@ const logger = winston.createLogger({
       ),
     }),
     new winston.transports.Console({
-      level: 'silly',
+      level: 'info',
       format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.printf(myFormat),
@@ -104,8 +109,60 @@ async function main() {
       process.exit(EXIT.ERROR.CRED);
     },
   );
-  const playlist = await getPlaylist(MARCH_2021, spotifyToken)
-  logger.debug(JSON.stringify({ playlist }));
+  const playlist = await getPlaylist(MARCH_2021, spotifyToken);
+
+  // Make sure the tracks exist in the database
+  const wrappers = playlist.tracks.items;
+  const newSpotifyTrackIds = await getNewSpotifyIds(wrappers);
+  const newSpotifyTracks = wrappers.filter((wrapper) => {
+    const trackId = getSpotifyId(wrapper.track);
+    return newSpotifyTrackIds.includes(trackId);
+  });
+  await insertSpotifyTracks(newSpotifyTracks);
+
+  // Upsert the playlist document
+  const dbPlaylist = await prisma.playlist.upsert({
+    where: { spotifyId: playlist.id },
+    update: {
+      name: playlist.name,
+      description: playlist.description,
+    },
+    create: {
+      name: playlist.name,
+      description: playlist.description,
+      spotifyId: playlist.id,
+    },
+  });
+
+  // Insert an empty snapshot
+  const dbSnapshot = await prisma.playlistSnapshot.create({
+    data: {
+      name: playlist.name,
+      description: playlist.description,
+      playlistId: dbPlaylist.id,
+    },
+  });
+
+  // Insert the wrappers and associate with the snapshot
+  let position = 0;
+  for (const wrapper of playlist.tracks.items) {
+    await prisma.playlistTrack.create({
+      data: {
+        position,
+        addedAt: wrapper.added_at,
+        snapshot: { connect: { id: dbSnapshot.id } },
+        track: {
+          connect: { spotifyId: getSpotifyId(wrapper.track) },
+        },
+      },
+    });
+    position++;
+  }
+
+  logger.info(
+    `Captured snapshot ID ${dbSnapshot.id} of playlist "${playlist.name}" ` +
+      `for user ID ${EL_USER_ID}`,
+  );
 
   logger.verbose(`Script \`${SCRIPT_NAME}\` finished.`);
 }
