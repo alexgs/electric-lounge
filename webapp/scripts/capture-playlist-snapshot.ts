@@ -12,6 +12,7 @@ import { getValidAccessToken } from '../lib/spotify/oauth';
 
 const EL_USER_ID = 1;
 const EXIT_CODES = {
+  SUCCESS: 0,
   UNCAUGHT: 1,
   CREDENTIAL: 2,
 }
@@ -81,7 +82,11 @@ async function main() {
   logger.verbose(`Script \`${SCRIPT_NAME}\` finished.`);
 }
 
-main().catch((error) => {
-  console.log(error);
-  process.exit(EXIT_CODES.UNCAUGHT);
-});
+main()
+  .then(() => {
+    process.exit(EXIT_CODES.SUCCESS);
+  })
+  .catch((error) => {
+    console.log(error);
+    process.exit(EXIT_CODES.UNCAUGHT);
+  });

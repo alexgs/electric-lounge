@@ -20,7 +20,7 @@
     "gen": "npm run gen:prisma && npm run gen:nexus",
     "gen:nexus": "ts-node --transpile-only src/schema/index.ts",
     "gen:prisma": "prisma generate",
-    "job:capture-playlist": "node build/scripts/capture-playlist-snapshot.js",
+    "job:capture-playlist": "node .next/server/capture-playlist-snapshot.js",
     "lint": "eslint .",
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
