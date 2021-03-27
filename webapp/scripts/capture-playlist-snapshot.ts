@@ -3,9 +3,15 @@
  * the Open Software License version 3.0.
  */
 
+import * as env from 'env-var';
+import path from 'path';
 import winston from 'winston';
 
+const LOG_CRON_PATH = env.get('LOG_CRON_PATH').default(process.cwd()).asString();
 const SCRIPT_NAME = 'capture-playlist-snapshot';
+
+const LOG_FILE = path.resolve(LOG_CRON_PATH, `${SCRIPT_NAME}.log`);
+const TRACE_FILE = path.resolve(LOG_CRON_PATH, `${SCRIPT_NAME}.trace.log`);
 
 const myFormat = (info: Record<string, string>) =>
   `[${info.timestamp}] ${info.script} ${info.level.toUpperCase()}: ` +
@@ -21,9 +27,9 @@ async function main() {
     ),
     level: 'silly',
     transports: [
-      new winston.transports.File({ filename: 'cron-trace.log' }),
+      new winston.transports.File({ filename: TRACE_FILE }),
       new winston.transports.File({
-        filename: 'cron.log',
+        filename: LOG_FILE,
         level: 'info',
         format: winston.format.combine(
           winston.format.timestamp(),
