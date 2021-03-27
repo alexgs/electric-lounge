@@ -1,5 +1,5 @@
 export { default as prisma } from './prisma';
-export { refreshAccessToken } from './refresh';
+export { refreshAccessToken } from './spotify/oauth';
 
 const PLAYLIST_FIELDS =
   'id,name,tracks.items(added_at,added_by,is_local,track.id,track.name,track.uri)';
