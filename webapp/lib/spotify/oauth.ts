@@ -3,12 +3,18 @@
  * the Open Software License version 3.0.
  */
 
+import { User } from '@prisma/client';
 import * as env from 'env-var';
 import formEncoder from 'form-urlencoded';
 import got from 'got';
+import { DateTime } from 'luxon';
 
 import { prisma } from 'lib';
-import { RefreshResult } from 'types';
+import {
+  RefreshErrorResult,
+  RefreshResult,
+  RefreshSuccessfulResult,
+} from 'types';
 
 const SPOTIFY_PROVIDER_ID = 'spotify';
 const SPOTIFY_REFRESH_URL = 'https://accounts.spotify.com/api/token';
@@ -18,6 +24,57 @@ interface SpotifyRefreshResult {
   expires_in: number;
   scope: string;
   token_type: string;
+}
+
+interface TokenResult {
+  accessToken?: string;
+  error?: string;
+}
+
+export async function getValidAccessToken(userId: number): Promise<TokenResult> {
+  // Get the current access token and expiry
+  const dbResult = await prisma.account.findFirst({
+    where: {
+      userId,
+      providerId: 'spotify',
+    },
+  });
+
+  // Return the access token if it is valid
+  const accessTokenExpires = dbResult?.accessTokenExpires?.getTime() ?? 0;
+  if (Date.now() < accessTokenExpires && dbResult?.accessToken) {
+    return { accessToken: dbResult.accessToken };
+  }
+
+  // Refresh the access token & update the database
+  if (dbResult?.refreshToken) {
+    const refreshResult = await refreshAccessToken(userId);
+    if (refreshResult.status !== 200) {
+      const errorResult = refreshResult as RefreshErrorResult;
+      return { error: errorResult.statusMessage };
+    }
+
+    const tokenResult = refreshResult as RefreshSuccessfulResult;
+
+    // By waiting for this update query, we should be able to surface any
+    //   errors in a somewhat useful way. Change `await` to `void` to make this
+    //   non-blocking.
+    await prisma.account.update({
+      data: {
+        accessToken: tokenResult.access_token,
+        accessTokenExpires: DateTime.now()
+          .plus({ seconds: tokenResult.expires_in })
+          .toJSDate(),
+        updatedAt: new Date(),
+      },
+      where: { id: dbResult.id },
+    });
+
+    // Return just the access token
+    return { accessToken: tokenResult.access_token };
+  }
+
+  return { error: 'Something unexpected happened.' };
 }
 
 export async function refreshAccessToken(userId: number): Promise<RefreshResult> {

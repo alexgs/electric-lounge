@@ -1,5 +1,4 @@
 export { default as prisma } from './prisma';
-export { refreshAccessToken } from './refresh';
 
 const PLAYLIST_FIELDS =
   'id,name,tracks.items(added_at,added_by,is_local,track.id,track.name,track.uri)';

@@ -61,6 +61,14 @@ html {
 }
 ```
 
+## Logging
+
+- I spent a lot of time messing around with `pino` (and its various helper libraries), but its standard practice (printing to `stdout` and then handling that in a separate process) strained the limit of my knowledge and ability to handle `spawn` and `stream`'s and whatnot.
+- If I decide to go that way, I might use something like [`execa`][11] to make my life easier.
+- For now, I'm just going to use Winston.
+
+[11]: https://www.npmjs.com/package/execa
+
 ## Spotify
 
   - [How can I get a specific snapshot of a playlist from the Spotify Web API?][1] TLDR: You can't.
