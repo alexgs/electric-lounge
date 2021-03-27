@@ -39,6 +39,7 @@
 **/dist
 **/generated
 **/node_modules
+logs/**/*.log
 webapp/scripts/*.js
 
 # misc
