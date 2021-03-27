@@ -4,11 +4,15 @@
  */
 
 import * as env from 'env-var';
+import got from 'got';
 import path from 'path';
 import winston from 'winston';
 
-import { prisma } from '../lib';
-import { getValidAccessToken } from '../lib/spotify/oauth';
+import { prisma, spotifyUrl } from 'lib';
+import { getValidAccessToken } from 'lib/spotify/oauth';
+import { Spotify } from 'types';
+
+type Playlist = Spotify.PlaylistObject;
 
 const EXIT = {
   SUCCESS: 0,
@@ -58,17 +62,24 @@ const logger = winston.createLogger({
   ],
 });
 
-async function getSpotifyId(userId: number) {
-  const idResult = await prisma.account.findFirst({
-    where: {
-      userId,
-      providerId: 'spotify',
-    },
-  });
-  if (!idResult) {
-    throw new Error(`Unable to retrieve Spotify ID for user ID ${userId}.`);
+async function getPlaylist(playlistId: string, spotifyToken: string) {
+  try {
+    const headers = {
+      Accept: 'application/json',
+      Authorization: `Bearer ${spotifyToken}`,
+      'Content-Type': 'application/json',
+      'User-Agent':
+        'Electric Lounge (https://github.com/alexgs/electric-lounge)',
+    };
+    const url = spotifyUrl.playlist(playlistId);
+    const playlistResponse = await got(url, { headers });
+    return JSON.parse(playlistResponse.body) as Playlist;
+  } catch (error) {
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/restrict-template-expressions */
+    const message = `Code ${error.response.statusCode}: ${error.response.statusMessage}`;
+    throw new Error(message);
+    /* eslint-enable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/restrict-template-expressions */
   }
-  return idResult.providerAccountId;
 }
 
 async function getSpotifyToken(userId: number) {
@@ -87,17 +98,14 @@ async function main() {
 
   logger.verbose(`Script \`${SCRIPT_NAME}\` starting.`);
 
-  const spotifyId = await getSpotifyId(EL_USER_ID).catch((error: Error) => {
-    logger.error(error.message);
-    process.exit(EXIT.ERROR.CRED);
-  });
   const spotifyToken = await getSpotifyToken(EL_USER_ID).catch(
     (error: Error) => {
       logger.error(error.message);
       process.exit(EXIT.ERROR.CRED);
     },
   );
-  logger.debug(JSON.stringify({ spotifyId, spotifyToken }));
+  const playlist = await getPlaylist(MARCH_2021, spotifyToken)
+  logger.debug(JSON.stringify({ playlist }));
 
   logger.verbose(`Script \`${SCRIPT_NAME}\` finished.`);
 }
