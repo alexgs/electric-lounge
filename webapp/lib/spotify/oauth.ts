@@ -31,9 +31,8 @@ interface TokenResult {
   error?: string;
 }
 
-export async function getValidAccessToken(user: User): Promise<TokenResult> {
+export async function getValidAccessToken(userId: number): Promise<TokenResult> {
   // Get the current access token and expiry
-  const userId = user.id;
   const dbResult = await prisma.account.findFirst({
     where: {
       userId,

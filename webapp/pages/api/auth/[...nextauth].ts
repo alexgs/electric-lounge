@@ -43,13 +43,14 @@ export default NextAuth({
   adapter: Adapters.Prisma.Adapter({ prisma }),
   callbacks: {
     async session(session, user) {
+      const userId = user.id as number;
       const idResult = await prisma.account.findFirst({
         where: {
-          userId: user.id as number,
+          userId,
           providerId: 'spotify',
         },
       });
-      const tokenResult = await getValidAccessToken(user as User);
+      const tokenResult = await getValidAccessToken(userId);
       if (tokenResult.accessToken && idResult?.providerAccountId) {
         return {
           ...session,
@@ -59,7 +60,6 @@ export default NextAuth({
       }
 
       if (!idResult?.providerAccountId) {
-        const userId = user.id as number;
         console.log(
           `Something bad happened while trying to get the Spotify ID for user ${userId}`,
         );
