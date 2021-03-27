@@ -4,7 +4,8 @@ dotenv: ['../.env']
 
 vars:
   DOCKER_IMAGE: electric-lounge
-  NPM_PATH: /usr/bin/npm
+  NON_LOCAL_PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games'
+  NPM: "PATH={{.NON_LOCAL_PATH}} npm"
   VERSION:
     sh: jq -r .version ./package.json
 
@@ -16,11 +17,6 @@ tasks:
       - task: private:docker:push-latest
     desc: Build production Docker image and push to the public repository
 
-#  fix-owner:
-#    cmds:
-#      - sudo chown -R alexgs:alexgs ./node_modules/@types
-#    desc: Fix file owners for `node_modules/@types`
-
   node:
     cmds:
       - docker exec -it webapp zsh
@@ -28,17 +24,17 @@ tasks:
 
   version:major:
     cmds:
-      - "{{.NPM_PATH}} version major"
+      - "{{.NPM}} version major"
     desc: Increment major version number
 
   version:minor:
     cmds:
-      - "{{.NPM_PATH}} version minor"
+      - "{{.NPM}} version minor"
     desc: Increment minor version number
 
   version:patch:
     cmds:
-      - "{{.NPM_PATH}} version patch"
+      - "{{.NPM}} version patch"
     desc: Increment patch version number
 
   # --- PRIVATE COMMANDS ---
