@@ -26,6 +26,8 @@ services:
       - app-network
     environment:
       - API_DATABASE_URL
+      - LOG_PATH
+      - LOG_CRON_FILE
       - SPOTIFY_CLIENT_ID
       - SPOTIFY_CLIENT_SECRET
     command: npm run dev
