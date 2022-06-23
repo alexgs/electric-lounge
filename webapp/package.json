@@ -42,7 +42,7 @@
     "@prisma/client": "^2.19.0",
     "env-var": "^7.0.0",
     "form-urlencoded": "^4.2.1",
-    "got": "^11.8.2",
+    "got": "^11.8.5",
     "lodash-es": "^4.17.21",
     "luxon": "^1.26.0",
     "next": "10.0.x",
