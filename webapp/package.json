@@ -44,7 +44,7 @@
     "form-urlencoded": "^4.2.1",
     "got": "^11.8.2",
     "lodash-es": "^4.17.21",
-    "luxon": "^1.26.0",
+    "luxon": "^1.28.1",
     "next": "10.0.x",
     "next-auth": "^3.5.1",
     "react": "17.0.x",
